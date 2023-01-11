@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AdministrationService } from './administration.service';
-import { CreateAdministrationDto } from './dto/create-administration.dto';
-import { UpdateAdministrationDto } from './dto/update-administration.dto';
+import { CreateAdministrationDto } from './dto/income.dto';
+import { ExpenseDto } from './dto/expense.dto';
 
 @Controller('administration')
 export class AdministrationController {
@@ -23,7 +23,7 @@ export class AdministrationController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdministrationDto: UpdateAdministrationDto) {
+  update(@Param('id') id: string, @Body() updateAdministrationDto: ExpenseDto) {
     return this.administrationService.update(+id, updateAdministrationDto);
   }
 

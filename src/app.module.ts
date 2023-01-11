@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { AdministrationModule } from './administration/administration.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { MyConfigModule } from './config/config.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MyConfigModule } from './config/config.module';
     TelegramModule,
     AuthModule,
     AdministrationModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

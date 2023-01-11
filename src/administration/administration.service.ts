@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAdministrationDto } from './dto/create-administration.dto';
-import { UpdateAdministrationDto } from './dto/update-administration.dto';
+import { CreateAdministrationDto } from './dto/income.dto';
+import { ExpenseDto } from './dto/expense.dto';
 
 @Injectable()
 export class AdministrationService {
@@ -16,7 +16,7 @@ export class AdministrationService {
     return `This action returns a #${id} administration`;
   }
 
-  update(id: number, updateAdministrationDto: UpdateAdministrationDto) {
+  update(id: number, updateAdministrationDto: ExpenseDto) {
     return `This action updates a #${id} administration`;
   }
 
