@@ -2,7 +2,7 @@
   "name": "sara-bot",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "sholguinc",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -18,16 +18,28 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "npx typeorm-ts-node-commonjs -d src/database/migrations.config.ts",
+    "migration:generate": "yarn typeorm migration:generate -p",
+    "migration:run": "yarn typeorm migration:run",
+    "migration:show": "yarn typeorm migration:show",
+    "migration:revert": "yarn typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/typeorm": "^9.0.1",
+    "joi": "^17.7.0",
+    "nestjs-telegraf": "^2.6.3",
+    "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "telegraf": "^4.11.2",
+    "typeorm": "^0.3.11"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -68,5 +80,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "engines": {
+    "yarn": "1.22.19",
+    "node": "19.0.0"
   }
 }
