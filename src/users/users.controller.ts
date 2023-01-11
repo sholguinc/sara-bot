@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { validate as isValidUUID } from 'uuid';
+
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -26,8 +28,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  findOne(@Param('id') idOrName: string) {
+    if (isValidUUID(idOrName)) {
+      return this.usersService.findOne(idOrName);
+    } else {
+      return this.usersService.findOneByName(idOrName);
+    }
   }
 
   @Patch(':id')

@@ -1,10 +1,10 @@
 import {
-  Logger,
-  Injectable,
-  ForbiddenException,
   BadRequestException,
-  NotFoundException,
+  ForbiddenException,
+  Injectable,
   InternalServerErrorException,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -59,11 +59,8 @@ export class UsersService {
   }
 
   async findOneByName(name: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ username: name });
-    if (!user) {
-      throw new NotFoundException(`User '${name}' not found`);
-    }
-    return user;
+    const id = await this.getUserIdByName(name);
+    return await this.findOne(id);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -96,6 +93,12 @@ export class UsersService {
     if (userWithName) {
       throw new ForbiddenException(`User with name ${name} already exists.`);
     }
+  }
+
+  private async getUserIdByName(name: string) {
+    const user = await this.userRepository.findOneBy({ username: name });
+    if (!user) throw new NotFoundException(`User '${name}' not found`);
+    return user.id;
   }
 
   private handleDBExceptions(error: any) {
