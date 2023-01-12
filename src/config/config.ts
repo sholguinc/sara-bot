@@ -9,6 +9,10 @@ export default registerAs('config', () => {
       user: process.env.DB_USERNAME,
       host: process.env.DB_HOST,
     },
+    app: {
+      appPort: process.env.APP_PORT,
+      timezone: process.env.TZ,
+    },
     telegram: {
       apiBotToken: process.env.API_BOT_TOKEN,
     },

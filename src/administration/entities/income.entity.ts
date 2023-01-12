@@ -22,7 +22,7 @@ export class Income {
 
   @CreateDateColumn({
     name: 'transaction_date',
-    type: 'timestamp',
+    type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   transactionDate: Date;

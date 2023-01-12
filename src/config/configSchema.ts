@@ -6,6 +6,8 @@ const configSchema = Joi.object({
   DB_PASSWORD: Joi.string().required(),
   DB_USERNAME: Joi.string().required(),
   DB_HOST: Joi.string().required(),
+  APP_PORT: Joi.number().optional(),
+  TZ: Joi.string().required(),
   API_BOT_TOKEN: Joi.string().required(),
 });
 

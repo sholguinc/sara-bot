@@ -6,9 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 
 import { ExpensesService } from '../services/expenses.service';
+import { FilterDto } from '../dto/filter.dto';
 import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
 
 @Controller('expenses')
@@ -20,9 +22,14 @@ export class ExpensesController {
     return this.expensesService.create(createExpenseDto);
   }
 
+  // @Post()
+  // uploadFile(@Body() createExpenseDto: CreateExpenseDto) {
+  //   return this.expensesService.uploadFile(createExpenseDto);
+  // }
+
   @Get()
-  findAll() {
-    return this.expensesService.findAll();
+  findSome(@Query() params?: FilterDto) {
+    return this.expensesService.findSome(params);
   }
 
   @Get(':id')
