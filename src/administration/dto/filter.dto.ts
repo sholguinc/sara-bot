@@ -1,12 +1,12 @@
 import {
   IsOptional,
   IsPositive,
-  ValidateIf,
   Min,
-  MaxDate,
-  IsDate,
   IsString,
+  IsEnum,
 } from 'class-validator';
+
+import { Summary } from '../models/summary.model';
 
 export class FilterDto {
   @IsOptional()
@@ -22,20 +22,14 @@ export class FilterDto {
   name: string;
 
   @IsOptional()
-  @Min(0)
-  daysAgo: number;
-
-  @IsOptional()
-  @IsDate()
-  @MaxDate(new Date())
-  @ValidateIf((item) => item.daysAgo === undefined)
-  fromDate: Date;
+  @IsEnum(Summary)
+  summary: Summary;
 
   @IsOptional()
   @Min(0)
   minPrice: number;
 
-  @ValidateIf((item) => item.minPrice)
+  @IsOptional()
   @IsPositive()
   maxPrice: number;
 }

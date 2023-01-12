@@ -1,22 +1,24 @@
 import { DateTime } from 'luxon';
-import { DateTime } from '@types/luxon'
 
 const timezone = process.env.TZ;
 
-export function currentTime(): DateTime {
+export function currentTime() {
   return DateTime.now().setZone(timezone);
 }
 
-export function subtractDays(date: Date, days: number): Date {
-  const pastDate = date.minus({ days });
-  pastDate.setDate(pastDate.getDate() - days);
-  return pastDate;
+export function subtractDays(date, days: number) {
+  return date.minus({ days });
 }
 
-export function dateToString(date: Date): string {
+export function stringToDate(dateString: string) {
+  return DateTime.fromISO(dateString);
+}
+
+export function dateToString(date): string {
   return date.toString();
 }
 
-export function stringToDatetime(dateString: string) {
-  return DateTime
+export function getTimestamp(date): string {
+  const timestamp = date.toMillis();
+  return timestamp.toString();
 }

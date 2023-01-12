@@ -3,11 +3,12 @@ import {
   Column,
   Entity,
   ManyToOne,
-  CreateDateColumn,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
+import { currentTime, dateToString, getTimestamp } from '../../utils';
 
 @Entity({ name: 'incomes' })
 export class Income {
@@ -20,14 +21,24 @@ export class Income {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @CreateDateColumn({
+  @Column({
     name: 'transaction_date',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'varchar',
+    length: 50,
   })
-  transactionDate: Date;
+  transactionDate: string;
+
+  @Column({ type: 'bigint' })
+  timestamp: string;
 
   @ManyToOne(() => User, (user) => user.incomes)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @BeforeInsert()
+  setDate() {
+    const datetime = currentTime();
+    this.transactionDate = dateToString(datetime);
+    this.timestamp = getTimestamp(datetime);
+  }
 }

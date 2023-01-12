@@ -6,13 +6,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Between, ILike } from 'typeorm';
+import {
+  Repository,
+  FindOptionsWhere,
+  Between,
+  ILike,
+  LessThan,
+  MoreThan,
+} from 'typeorm';
 import { validate as isValidUUID } from 'uuid';
 
 import { FilterDto } from '../dto/filter.dto';
 import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
 import { Expense } from '../entities/expense.entity';
-import { subtractDays } from 'src/utils';
+import { getLimits } from 'src/utils';
+import { Summary } from '../models/summary.model';
 
 @Injectable()
 export class ExpensesService {
@@ -36,9 +44,8 @@ export class ExpensesService {
   async findSome(params?: FilterDto) {
     const where: FindOptionsWhere<Expense> = {};
     const { limit = 10, offset = 0 } = params;
-    const { name } = params;
-    const { daysAgo = 7, fromDate } = params;
-    const { maxPrice, minPrice } = params;
+    const { name, summary = Summary.MONTH } = params;
+    const { minPrice, maxPrice } = params;
 
     // Name Filter
     if (name) {
@@ -46,17 +53,18 @@ export class ExpensesService {
     }
 
     // Date Filter
-    const currentDate = new Date();
-    if (fromDate) {
-      where.transactionDate = Between(fromDate, currentDate);
-    } else {
-      const agoDate = subtractDays(currentDate, daysAgo);
-      where.transactionDate = Between(agoDate, currentDate);
-    }
+    const { lowerLimit, upperLimit } = getLimits(summary);
+    where.timestamp = Between(lowerLimit, upperLimit);
 
     // Price Filter
-    if (minPrice && maxPrice) {
-      where.amount = Between(minPrice, maxPrice);
+    if (minPrice || maxPrice) {
+      if (minPrice && maxPrice) {
+        where.amount = Between(minPrice, maxPrice);
+      } else if (minPrice) {
+        where.amount = MoreThan(minPrice);
+      } else if (maxPrice) {
+        where.amount = LessThan(maxPrice);
+      }
     }
 
     try {

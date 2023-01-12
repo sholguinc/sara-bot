@@ -1,9 +1,6 @@
-import {
-  PrimaryGeneratedColumn,
-  Column,
-  Entity,
-  CreateDateColumn,
-} from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, BeforeInsert } from 'typeorm';
+
+import { currentTime, dateToString, getTimestamp } from 'src/utils';
 
 @Entity({ name: 'expenses' })
 export class Expense {
@@ -16,10 +13,20 @@ export class Expense {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @CreateDateColumn({
+  @Column({
     name: 'transaction_date',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'varchar',
+    length: 50,
   })
-  transactionDate: Date;
+  transactionDate: string;
+
+  @Column({ type: 'bigint' })
+  timestamp: string;
+
+  @BeforeInsert()
+  setDate() {
+    const datetime = currentTime();
+    this.transactionDate = dateToString(datetime);
+    this.timestamp = getTimestamp(datetime);
+  }
 }
