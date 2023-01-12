@@ -5,7 +5,9 @@ import {
   ManyToOne,
   JoinColumn,
   BeforeInsert,
+  Index,
 } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 
 import { User } from '../../users/entities/user.entity';
 import { currentTime, dateToString, getTimestamp } from '../../utils';
@@ -28,12 +30,19 @@ export class Income {
   })
   transactionDate: string;
 
+  @Index()
   @Column({ type: 'bigint' })
   timestamp: string;
 
+  @Exclude()
   @ManyToOne(() => User, (user) => user.incomes)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @Expose()
+  get username() {
+    return this.user.username;
+  }
 
   @BeforeInsert()
   setDate() {

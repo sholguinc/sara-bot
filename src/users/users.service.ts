@@ -2,8 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,8 +14,6 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger('UsersService');
-
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -26,25 +22,17 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     await this.verifyUniqueName(createUserDto.username);
 
-    try {
-      const user = this.userRepository.create(createUserDto);
-      await this.userRepository.save(user);
-      return user;
-    } catch (error) {
-      this.handleDBExceptions(error);
-    }
+    const user = this.userRepository.create(createUserDto);
+    await this.userRepository.save(user);
+    return user;
   }
 
   async findAll() {
-    try {
-      const users = await this.userRepository.find();
-      if (users.length == 0) {
-        return { message: 'There are no users' };
-      }
-      return users;
-    } catch (error) {
-      this.handleDBExceptions(error);
+    const users = await this.userRepository.find();
+    if (users.length == 0) {
+      return { message: 'There are no users' };
     }
+    return users;
   }
 
   async findOne(id: string): Promise<User> {
@@ -65,16 +53,12 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
-    try {
-      const updatedUser = this.userRepository.preload({
-        id: id,
-        ...updateUserDto,
-      });
-      await this.userRepository.save(await updatedUser);
-      return updatedUser;
-    } catch (error) {
-      this.handleDBExceptions(error);
-    }
+    const updatedUser = this.userRepository.preload({
+      id: id,
+      ...updateUserDto,
+    });
+    await this.userRepository.save(await updatedUser);
+    return updatedUser;
   }
 
   async remove(id: string) {
@@ -99,13 +83,5 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({ username: name });
     if (!user) throw new NotFoundException(`User '${name}' not found`);
     return user.id;
-  }
-
-  private handleDBExceptions(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-    this.logger.error(error);
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
   }
 }

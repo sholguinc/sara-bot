@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, BeforeInsert } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, BeforeInsert, Index } from 'typeorm';
 
 import { currentTime, dateToString, getTimestamp } from 'src/utils';
 
@@ -7,7 +7,7 @@ export class Expense {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 50 })
   concept: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -20,6 +20,7 @@ export class Expense {
   })
   transactionDate: string;
 
+  @Index()
   @Column({ type: 'bigint' })
   timestamp: string;
 

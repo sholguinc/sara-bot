@@ -7,6 +7,7 @@ import {
 } from './datetime';
 
 import { getLimits } from './summaryLimits';
+import { priceFilter } from './priceFilter';
 
 export {
   currentTime,
@@ -15,4 +16,5 @@ export {
   stringToDate,
   getTimestamp,
   getLimits,
+  priceFilter
 };

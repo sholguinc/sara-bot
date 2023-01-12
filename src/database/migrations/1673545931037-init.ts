@@ -1,18 +1,21 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class init1673493557920 implements MigrationInterface {
-    name = 'init1673493557920'
+export class init1673545931037 implements MigrationInterface {
+    name = 'init1673545931037'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             CREATE TABLE "expenses" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "concept" character varying(20) NOT NULL,
+                "concept" character varying(50) NOT NULL,
                 "amount" numeric(10, 2) NOT NULL,
                 "transaction_date" character varying(50) NOT NULL,
                 "timestamp" bigint NOT NULL,
                 CONSTRAINT "PK_94c3ceb17e3140abc9282c20610" PRIMARY KEY ("id")
             )
+        `);
+        await queryRunner.query(`
+            CREATE INDEX "IDX_8c75f893af1229bc740c84a713" ON "expenses" ("timestamp")
         `);
         await queryRunner.query(`
             CREATE TYPE "public"."users_role_enum" AS ENUM('member', 'admin')
@@ -28,6 +31,9 @@ export class init1673493557920 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
+            CREATE INDEX "IDX_fe0bb3f6520ee0469504521e71" ON "users" ("username")
+        `);
+        await queryRunner.query(`
             CREATE TABLE "incomes" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "concept" character varying(50) NOT NULL,
@@ -37,6 +43,9 @@ export class init1673493557920 implements MigrationInterface {
                 "user_id" uuid,
                 CONSTRAINT "PK_d737b3d0314c1f0da5461a55e5e" PRIMARY KEY ("id")
             )
+        `);
+        await queryRunner.query(`
+            CREATE INDEX "IDX_fa59545742fdb9417e596124f7" ON "incomes" ("timestamp")
         `);
         await queryRunner.query(`
             ALTER TABLE "incomes"
@@ -49,13 +58,22 @@ export class init1673493557920 implements MigrationInterface {
             ALTER TABLE "incomes" DROP CONSTRAINT "FK_400664fad260d8fa50ecb78ffe6"
         `);
         await queryRunner.query(`
+            DROP INDEX "public"."IDX_fa59545742fdb9417e596124f7"
+        `);
+        await queryRunner.query(`
             DROP TABLE "incomes"
+        `);
+        await queryRunner.query(`
+            DROP INDEX "public"."IDX_fe0bb3f6520ee0469504521e71"
         `);
         await queryRunner.query(`
             DROP TABLE "users"
         `);
         await queryRunner.query(`
             DROP TYPE "public"."users_role_enum"
+        `);
+        await queryRunner.query(`
+            DROP INDEX "public"."IDX_8c75f893af1229bc740c84a713"
         `);
         await queryRunner.query(`
             DROP TABLE "expenses"

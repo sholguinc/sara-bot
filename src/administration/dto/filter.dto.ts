@@ -1,10 +1,4 @@
-import {
-  IsOptional,
-  IsPositive,
-  Min,
-  IsString,
-  IsEnum,
-} from 'class-validator';
+import { IsOptional, IsPositive, Min, IsString, IsEnum } from 'class-validator';
 
 import { Summary } from '../models/summary.model';
 
@@ -32,4 +26,8 @@ export class FilterDto {
   @IsOptional()
   @IsPositive()
   maxPrice: number;
+
+  @IsOptional()
+  @IsString()
+  username: string;
 }

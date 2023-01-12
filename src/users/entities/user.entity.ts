@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToMany } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, OneToMany, Index } from 'typeorm';
 
 import { Role } from 'src/auth/models/roles.model';
 import { Income } from '../../administration/entities/income.entity';
@@ -8,6 +8,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Index()
   @Column({ type: 'varchar', length: 10, unique: true })
   username: string;
 
