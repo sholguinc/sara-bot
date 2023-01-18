@@ -1,4 +1,4 @@
-import { Summary } from 'src/administration/models/summary.model';
+import { Summary } from 'src/cash/models/summary.model';
 import { currentTime, subtractDays } from './datetime';
 
 export function getLimits(summary: Summary) {

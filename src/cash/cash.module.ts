@@ -16,4 +16,4 @@ import { IncomesService } from './services/incomes.service';
   controllers: [ExpensesController, IncomesController],
   providers: [ExpensesService, IncomesService],
 })
-export class AdministrationModule {}
+export class CashModule {}
