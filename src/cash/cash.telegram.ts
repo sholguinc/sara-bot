@@ -1,28 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Command, Update, Ctx } from 'nestjs-telegraf';
-import { Context, Markup } from 'telegraf';
-
-import { IncomesService } from './services/incomes.service';
-import { ExpensesService } from './services/expenses.service';
+import { Command, Update, InjectBot } from 'nestjs-telegraf';
+import { Context, Telegraf, Scenes } from 'telegraf';
 
 @Update()
 @Injectable()
 export class CashTelegram {
-  constructor(
-    private readonly incomesService: IncomesService,
-    private readonly expensesService: ExpensesService,
-  ) {}
+  constructor(@InjectBot() private myBot: Telegraf<Context>) {}
 
   @Command('send')
-  async sendCommand(@Ctx() ctx: Context) {
-    const button1 = Markup.button.callback('📈 Incomes', 'earnings');
-    const button2 = Markup.button.callback('📉 Expenses', 'expenses');
-    const button3 = Markup.button.callback('❌ Cancel', 'cancel');
-
-    await ctx.replyWithMarkdownV2(
-      'What kind of information do you want to send?',
-      Markup.inlineKeyboard([button1, button2, button3]),
-    );
+  async sendCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('sendWizardScene');
   }
 
   // @Command('consult')

@@ -5,11 +5,11 @@ export class CreateExpenseDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  readonly concept: string;
+  concept: string;
 
   @IsNumber()
   @IsNotEmpty()
-  readonly amount: number;
+  amount: number;
 }
 
 export class UpdateExpenseDto extends PartialType(CreateExpenseDto) {}

@@ -13,6 +13,7 @@ import { Income } from '../entities/income.entity';
 import { FilterDto } from '../dto/filter.dto';
 import { Summary } from '../models/summary.model';
 import { getLimits, priceFilter } from '../../utils';
+import { BaseTelegram } from '../../telegram/base.telegram';
 
 @Injectable()
 export class IncomesService {
@@ -20,6 +21,7 @@ export class IncomesService {
     @InjectRepository(Income)
     private readonly incomeRepository: Repository<Income>,
     private readonly usersService: UsersService,
+    private readonly baseTelegram: BaseTelegram,
   ) {}
 
   async create(createIncomeDto: CreateIncomeDto) {
@@ -107,5 +109,17 @@ export class IncomesService {
     return {
       message: `Income has been deleted.`,
     };
+  }
+
+  // Create income from telegram
+  async createFromTelegram(createIncomeDto: CreateIncomeDto, ctx) {
+    try {
+      const income = await this.create(createIncomeDto);
+      income instanceof Income
+        ? this.baseTelegram.completedMessage(ctx)
+        : this.baseTelegram.errorMessage(ctx);
+    } catch {
+      this.baseTelegram.errorMessage(ctx);
+    }
   }
 }

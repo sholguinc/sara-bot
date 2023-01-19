@@ -22,3 +22,8 @@ export function getTimestamp(date): string {
   const timestamp = date.toMillis();
   return timestamp.toString();
 }
+
+export function getDateString(): string {
+  const time = currentTime();
+  return time.setLocale('en-gb').toLocaleString();
+}

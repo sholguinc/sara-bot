@@ -10,7 +10,7 @@ export class Expense {
   @Column({ type: 'varchar', length: 50 })
   concept: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   amount: number;
 
   @Column({

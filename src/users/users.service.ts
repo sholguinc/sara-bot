@@ -35,6 +35,10 @@ export class UsersService {
     return users;
   }
 
+  async findActives() {
+    return await this.userRepository.findBy({ active: true });
+  }
+
   async findOne(id: string): Promise<User> {
     if (!isValidUUID(id)) {
       throw new BadRequestException(`${id} is not a valid UUID`);

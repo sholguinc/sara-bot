@@ -4,16 +4,16 @@ import { PartialType } from '@nestjs/mapped-types';
 export class CreateIncomeDto {
   @IsString()
   @IsNotEmpty()
-  readonly username: string;
+  username: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  readonly concept: string;
+  concept: string;
 
   @IsNumber()
   @IsNotEmpty()
-  readonly amount: number;
+  amount: number;
 }
 
 export class UpdateIncomeDto extends PartialType(CreateIncomeDto) {}

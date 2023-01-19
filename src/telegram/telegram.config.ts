@@ -3,6 +3,7 @@ import {
   TelegrafModuleAsyncOptions,
 } from 'nestjs-telegraf';
 import { ConfigType } from '@nestjs/config';
+import { session } from 'telegraf';
 
 import config from '../config/config';
 
@@ -14,6 +15,7 @@ export const telegramAsyncConfig: TelegrafModuleAsyncOptions = {
     const { apiBotToken } = configService.telegram;
     return {
       token: apiBotToken,
+      middlewares: [session()],
     };
   },
 };

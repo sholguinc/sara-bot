@@ -12,12 +12,15 @@ import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
 import { Expense } from '../entities/expense.entity';
 import { getLimits, priceFilter } from 'src/utils';
 import { Summary } from '../models/summary.model';
+import { BaseTelegram } from '../../telegram/base.telegram';
+import { Income } from '../entities/income.entity';
 
 @Injectable()
 export class ExpensesService {
   constructor(
     @InjectRepository(Expense)
     private readonly expenseRepository: Repository<Expense>,
+    private readonly baseTelegram: BaseTelegram,
   ) {}
 
   async create(createExpenseDto: CreateExpenseDto) {
@@ -84,5 +87,17 @@ export class ExpensesService {
     return {
       message: `Expense has been deleted.`,
     };
+  }
+
+  // Create expense from telegram
+  async createFromTelegram(createExpenseDto: CreateExpenseDto, ctx) {
+    try {
+      const expense = await this.create(createExpenseDto);
+      expense instanceof Expense
+        ? this.baseTelegram.completedMessage(ctx)
+        : this.baseTelegram.errorMessage(ctx);
+    } catch {
+      this.baseTelegram.errorMessage(ctx);
+    }
   }
 }
