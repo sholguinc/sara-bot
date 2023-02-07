@@ -1,5 +1,5 @@
 import { Summary } from 'src/cash/models/summary.model';
-import { currentTime, subtractDays } from './datetime';
+import { currentTime, subtractDays, dateFromMillis } from 'src/utils';
 
 export function getLimits(summary: Summary) {
   // Limits
@@ -36,4 +36,11 @@ export function getLimits(summary: Summary) {
     upperLimit = datetime.toMillis();
   }
   return { lowerLimit, upperLimit };
+}
+
+export function getDateLimits(summary: Summary) {
+  const { lowerLimit, upperLimit } = getLimits(summary);
+  const lowerDate = dateFromMillis(lowerLimit);
+  const upperDate = dateFromMillis(upperLimit);
+  return { lowerDate, upperDate };
 }

@@ -4,16 +4,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, FindOptionsWhere, ILike, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { validate as isValidUUID } from 'uuid';
 
 import { UsersService } from '../../users/users.service';
 import { CreateIncomeDto, UpdateIncomeDto } from '../dto/income.dto';
 import { Income } from '../entities/income.entity';
 import { FilterDto } from '../dto/filter.dto';
-import { Summary } from '../models/summary.model';
-import { getLimits, priceFilter } from '../../utils';
 import { BaseTelegram } from '../../telegram/base.telegram';
+import { getWhereOptions } from '../utils';
 
 @Injectable()
 export class IncomesService {
@@ -34,31 +33,8 @@ export class IncomesService {
   }
 
   async findSome(params?: FilterDto) {
-    const where: FindOptionsWhere<Income> = {};
+    const where: FindOptionsWhere<Income> = await getWhereOptions(params);
     const { limit = 10, offset = 0 } = params;
-    const { name, summary = Summary.MONTH } = params;
-    const { minPrice, maxPrice } = params;
-    const { username } = params;
-
-    // User Filter
-    if (username) {
-      await this.usersService.findOneByName(username);
-      where.user = { username };
-    }
-
-    // Name Filter
-    if (name) {
-      where.concept = ILike(`%${name}%`);
-    }
-
-    // Date Filter
-    const { lowerLimit, upperLimit } = getLimits(summary);
-    where.timestamp = Between(lowerLimit, upperLimit);
-
-    // Price Filter
-    if (minPrice || maxPrice) {
-      where.amount = priceFilter(minPrice, maxPrice);
-    }
 
     const incomes = await this.incomeRepository.find({
       relations: ['user'],
@@ -67,7 +43,7 @@ export class IncomesService {
       where,
     });
     if (incomes.length == 0) {
-      return { message: 'There are no incomes' };
+      return 'There are no incomes';
     }
     return incomes;
   }
@@ -121,5 +97,21 @@ export class IncomesService {
     } catch {
       this.baseTelegram.errorMessage(ctx);
     }
+  }
+
+  // Get sum of incomes
+  async getSum(params?: FilterDto) {
+    let totalSum = 0;
+    const where: FindOptionsWhere<Income> = await getWhereOptions(params);
+    const incomes = await this.incomeRepository.find({ where });
+    if (incomes.length !== 0) {
+      const amountArray = incomes.map((income) => {
+        return Number(income.amount);
+      });
+      totalSum = amountArray.reduce((acc, value) => {
+        return acc + value;
+      }, 0);
+    }
+    return totalSum;
   }
 }

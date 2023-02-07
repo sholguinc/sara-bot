@@ -23,6 +23,15 @@ export function getTimestamp(date): string {
   return timestamp.toString();
 }
 
+export function dateFromMillis(millis: string) {
+  return DateTime.fromMillis(millis).setLocale('en-gb').toLocaleString();
+}
+
+export function localString(dateString: string) {
+  const date = stringToDate(dateString);
+  return date.setLocale('en-gb').toLocaleString();
+}
+
 export function getDateString(): string {
   const time = currentTime();
   return time.setLocale('en-gb').toLocaleString();

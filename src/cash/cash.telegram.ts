@@ -12,8 +12,8 @@ export class CashTelegram {
     ctx.scene.enter('sendWizardScene');
   }
 
-  // @Command('consult')
-  // async helpCommand(ctx: Context) {
-  //   await this.appService.getHelp(ctx);
-  // }
+  @Command('consult')
+  async consultCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('consultWizardScene');
+  }
 }

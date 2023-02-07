@@ -11,12 +11,12 @@ import { BaseTelegram } from '../../telegram/base.telegram';
 import { IncomesService } from '../services/incomes.service';
 import { ExpensesService } from '../services/expenses.service';
 
-import { Send } from '../models/send.model';
+import { Cash } from '../models/cash.model';
 import { chunkArray, escapeMessage, getDateString } from '../../utils';
 
 // State Interface
 interface State {
-  type: Send;
+  type: Cash;
   data: CreateIncomeDto | CreateExpenseDto;
 }
 
@@ -42,7 +42,7 @@ export class SendScene {
 
     await ctx.replyWithMarkdownV2(
       'What kind of information do you want to send?',
-      Markup.inlineKeyboard([[button1], [button2], [button3]]),
+      Markup.inlineKeyboard([[button1, button2], [button3]]),
     );
 
     ctx.wizard.next();
@@ -53,10 +53,16 @@ export class SendScene {
   async sendIncome(@Ctx() ctx: Scenes.WizardContext) {
     // Init State
     this.state = ctx.wizard.state as State;
-    this.state.type = Send.INCOME;
+    this.state.type = Cash.INCOME;
     this.state.data = {} as CreateIncomeDto;
 
-    const users: User[] = await this.usersService.findActives();
+    let users: User[];
+    try {
+      users = await this.usersService.findActives();
+    } catch {
+      this.baseTelegram.errorMessage(ctx);
+      ctx.scene.leave();
+    }
 
     const buttonArray = users.map((user) => {
       const name = user.username;
@@ -83,7 +89,7 @@ export class SendScene {
   async sendExpense(@Ctx() ctx: Scenes.WizardContext) {
     // Init State
     this.state = ctx.wizard.state as State;
-    this.state.type = Send.EXPENSE;
+    this.state.type = Cash.EXPENSE;
     this.state.data = {} as CreateExpenseDto;
     await ctx.editMessageText('I see, How much is the expense amount?');
   }
@@ -129,7 +135,7 @@ export class SendScene {
 
     // User
     const userText =
-      state.type == Send.INCOME ? `_*User*_: ${state.data['username']}\n` : '';
+      state.type == Cash.INCOME ? `_*User*_: ${state.data['username']}\n` : '';
 
     // Summary
     const summary =
@@ -185,10 +191,10 @@ export class SendScene {
     const state = ctx.wizard.state as State;
 
     // Create entity
-    if (state.type == Send.INCOME) {
+    if (state.type == Cash.INCOME) {
       const incomeDto = state.data as CreateIncomeDto;
       await this.incomesService.createFromTelegram(incomeDto, ctx);
-    } else if (state.type == Send.EXPENSE) {
+    } else if (state.type == Cash.EXPENSE) {
       const expenseDto = state.data as CreateExpenseDto;
       await this.expensesService.createFromTelegram(expenseDto, ctx);
     }

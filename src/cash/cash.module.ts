@@ -10,9 +10,13 @@ import { Income } from './entities/income.entity';
 import { IncomesService } from './services/incomes.service';
 
 import { CashTelegram } from './cash.telegram';
+import { TelegramModule } from '../telegram/telegram.module';
 
 import { SendScene } from './scenes/send.scene';
-import { TelegramModule } from '../telegram/telegram.module';
+import { ConsultScene } from './scenes/consult.scene';
+import { ConsultsService } from './services/consults.service';
+import { ExpensesController } from './controllers/expenses.controller';
+import { IncomesController } from './controllers/incomes.controller';
 
 @Module({
   imports: [
@@ -20,6 +24,14 @@ import { TelegramModule } from '../telegram/telegram.module';
     UsersModule,
     TelegramModule,
   ],
-  providers: [ExpensesService, IncomesService, CashTelegram, SendScene],
+  controllers: [ExpensesController, IncomesController],
+  providers: [
+    ExpensesService,
+    IncomesService,
+    ConsultsService,
+    CashTelegram,
+    SendScene,
+    ConsultScene,
+  ],
 })
 export class CashModule {}

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Action, Ctx } from 'nestjs-telegraf';
 import { Scenes } from 'telegraf';
 import { readFileSync } from 'fs';
 

@@ -4,16 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Between, ILike } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { validate as isValidUUID } from 'uuid';
 
 import { FilterDto } from '../dto/filter.dto';
 import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
 import { Expense } from '../entities/expense.entity';
-import { getLimits, priceFilter } from 'src/utils';
-import { Summary } from '../models/summary.model';
 import { BaseTelegram } from '../../telegram/base.telegram';
-import { Income } from '../entities/income.entity';
+import { getWhereOptions } from '../utils';
 
 @Injectable()
 export class ExpensesService {
@@ -30,24 +28,8 @@ export class ExpensesService {
   }
 
   async findSome(params?: FilterDto) {
-    const where: FindOptionsWhere<Expense> = {};
+    const where: FindOptionsWhere<Expense> = await getWhereOptions(params);
     const { limit = 10, offset = 0 } = params;
-    const { name, summary = Summary.MONTH } = params;
-    const { minPrice, maxPrice } = params;
-
-    // Name Filter
-    if (name) {
-      where.concept = ILike(`%${name}%`);
-    }
-
-    // Date Filter
-    const { lowerLimit, upperLimit } = getLimits(summary);
-    where.timestamp = Between(lowerLimit, upperLimit);
-
-    // Price Filter
-    if (minPrice || maxPrice) {
-      where.amount = priceFilter(minPrice, maxPrice);
-    }
 
     const expenses = await this.expenseRepository.find({
       take: limit,
@@ -55,7 +37,7 @@ export class ExpensesService {
       where,
     });
     if (expenses.length == 0) {
-      return { message: 'There are no expenses' };
+      return 'There are no expenses';
     }
     return expenses;
   }
@@ -99,5 +81,21 @@ export class ExpensesService {
     } catch {
       this.baseTelegram.errorMessage(ctx);
     }
+  }
+
+  // Get sum of incomes
+  async getSum(params?: FilterDto) {
+    let totalSum = 0;
+    const where: FindOptionsWhere<Expense> = await getWhereOptions(params);
+    const expenses = await this.expenseRepository.find({ where });
+    if (expenses.length !== 0) {
+      const amountArray = expenses.map((income) => {
+        return Number(income.amount);
+      });
+      totalSum = amountArray.reduce((acc, value) => {
+        return acc + value;
+      }, 0);
+    }
+    return totalSum;
   }
 }

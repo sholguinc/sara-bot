@@ -5,12 +5,13 @@ import {
   stringToDate,
   getTimestamp,
   getDateString,
+  localString,
+  dateFromMillis,
 } from './datetime';
 
-import { getLimits } from './summaryLimits';
-import { priceFilter } from './priceFilter';
 import { escapeMessage } from './escapeMessage';
 import { chunkArray } from './chunkArray';
+import { capitalize } from './capitalize';
 
 export {
   currentTime,
@@ -18,9 +19,10 @@ export {
   dateToString,
   stringToDate,
   getTimestamp,
-  getLimits,
-  priceFilter,
   getDateString,
   escapeMessage,
-  chunkArray
+  chunkArray,
+  localString,
+  dateFromMillis,
+  capitalize,
 };
