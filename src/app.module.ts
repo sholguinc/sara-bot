@@ -10,7 +10,6 @@ import { UsersModule } from './users/users.module';
 import { AppTelegram } from './app.telegram';
 import { AppServices } from './app.service';
 import { FilesModule } from './files/files.module';
-import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { AdminModule } from './admin/admin.module';
     CashModule,
     UsersModule,
     FilesModule,
-    AdminModule,
   ],
   providers: [AppTelegram, AppServices],
 })

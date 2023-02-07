@@ -1,4 +1,10 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToMany, Index } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  OneToMany,
+  Index,
+} from 'typeorm';
 
 import { Role } from 'src/auth/models/roles.model';
 import { Income } from '../../cash/entities/income.entity';

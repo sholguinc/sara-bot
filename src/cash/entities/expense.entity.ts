@@ -1,4 +1,10 @@
-import { PrimaryGeneratedColumn, Column, Entity, BeforeInsert, Index } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  BeforeInsert,
+  Index,
+} from 'typeorm';
 
 import { currentTime, dateToString, getTimestamp } from 'src/utils';
 
