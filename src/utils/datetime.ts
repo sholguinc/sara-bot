@@ -36,3 +36,8 @@ export function getDateString(): string {
   const time = currentTime();
   return time.setLocale('en-gb').toLocaleString();
 }
+
+export function getHyphenDate() {
+  const time = currentTime();
+  return time.setLocale('en-gb').toFormat('dd-MM-yy');
+}

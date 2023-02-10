@@ -7,11 +7,13 @@ import {
   getDateString,
   localString,
   dateFromMillis,
+  getHyphenDate,
 } from './datetime';
 
 import { escapeMessage } from './escapeMessage';
 import { chunkArray } from './chunkArray';
 import { capitalize } from './capitalize';
+import { downloadFile } from './download';
 
 export {
   currentTime,
@@ -25,4 +27,6 @@ export {
   localString,
   dateFromMillis,
   capitalize,
+  getHyphenDate,
+  downloadFile,
 };

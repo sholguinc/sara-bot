@@ -11,9 +11,10 @@ export class BaseTelegram {
     ctx.sendSticker({ source: confirmedSticker });
   }
 
-  errorMessage(ctx: Scenes.WizardContext) {
+  errorMessage(ctx: Scenes.WizardContext, message?: string) {
+    const errorText = message ?? 'There was an error';
     const errorSticker = readFileSync('./public/error.webp');
-    ctx.editMessageText(`There was an error, I'm Sorry...`);
+    ctx.editMessageText(errorText);
     ctx.sendSticker({ source: errorSticker });
   }
 

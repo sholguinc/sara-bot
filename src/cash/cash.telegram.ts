@@ -16,4 +16,9 @@ export class CashTelegram {
   async consultCommand(ctx: Scenes.SceneContext) {
     ctx.scene.enter('consultWizardScene');
   }
+
+  @Command('search')
+  async searchCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('searchWizardScene');
+  }
 }
