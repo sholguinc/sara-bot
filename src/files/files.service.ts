@@ -1,13 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { Scenes } from 'telegraf';
+import { readFileSync } from 'fs';
+import { parse } from 'papaparse';
+import { validateSync } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+
+import { BaseTelegram } from '../telegram/base.telegram';
 
 import { CreateFileDto } from './dto/create-file.dto';
+import { CreateExpenseDto } from '../cash/dto/expense.dto';
 import { File } from './scenes/file.scene';
 
 import { getHyphenDate, downloadFile } from 'src/utils';
 
 @Injectable()
 export class FilesService {
+  constructor(private readonly baseTelegram: BaseTelegram) {}
+
   create(createFileDto: CreateFileDto) {
     return 'This action adds a new file';
   }
@@ -24,7 +33,7 @@ export class FilesService {
     const arr = fileName.split('.');
     const extension = arr[arr.length - 1];
 
-    const allowedExtensions = ['xls', 'xlsx', 'csv'];
+    const allowedExtensions = ['csv'];
 
     const allowed = allowedExtensions.includes(extension);
 
@@ -48,7 +57,58 @@ export class FilesService {
     await downloadFile(fileName, url);
   }
 
-  async verifyData(file: File) {}
+  parseData(ctx: Scenes.WizardContext, file: File) {
+    try {
+      // File
+      const csvFile = readFileSync(`./static/${file.source}`);
 
-  async sendData(file: File) {}
+      // Data
+      const csvData = csvFile.toString();
+      const csvParsed = [];
+
+      // Parsing
+      parse(csvData, {
+        header: true,
+        skipEmptyLines: 'greedy',
+        delimiter: ',',
+        dynamicTyping: true,
+        step: (result) => {
+          // Data
+          const row = result.data;
+
+          // Remove Blank Columns
+          delete row[''];
+
+          // Save
+          csvParsed.push(row);
+        },
+      });
+
+      return csvParsed;
+    } catch {
+      this.baseTelegram.errorMessage(ctx, 'Data is not valid');
+      ctx.scene.leave();
+    }
+  }
+
+  verifyData(ctx: Scenes.WizardContext, data: any[]): string[] {
+    // error
+    const errors = [];
+
+    data.forEach((row) => {
+      // Instance
+      const toValidate = plainToInstance(CreateExpenseDto, row);
+      const rowErrors = validateSync(toValidate);
+
+      if (rowErrors.length > 0) {
+        errors.push(JSON.stringify(row));
+      }
+    });
+
+    return errors;
+  }
+
+  async sendData(data: CreateExpenseDto[]) {
+    
+  }
 }

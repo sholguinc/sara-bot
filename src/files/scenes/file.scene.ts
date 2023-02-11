@@ -2,6 +2,7 @@ import { Action, Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Markup, Scenes } from 'telegraf';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
+import { CreateExpenseDto } from '../../cash/dto/expense.dto';
 import { FilesService } from '../files.service';
 
 export interface File {
@@ -11,6 +12,7 @@ export interface File {
 
 interface State {
   file: File;
+  data: CreateExpenseDto[];
 }
 
 // Scene
@@ -31,7 +33,7 @@ export class FileScene {
     this.state = ctx.wizard.state as State;
     this.state.file = {} as File;
 
-    await ctx.replyWithMarkdownV2('Upload the excel file');
+    await ctx.replyWithMarkdownV2('Upload the csv file');
     ctx.wizard.next();
   }
 
@@ -79,8 +81,8 @@ export class FileScene {
 
       // Verify Buttons
       const verifyButton = Markup.button.callback(
-        '🔁 Verify Data',
-        'verifyData',
+        '🔁 Process Data',
+        'processData',
       );
       const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
 
@@ -97,29 +99,33 @@ export class FileScene {
   }
 
   // Verifying
-  @Action('verifyData')
+  @Action('processData')
   async verifyData(@Ctx() ctx: Scenes.WizardContext) {
-    await ctx.editMessageText('Verifying...');
+    await ctx.editMessageText('Processing...');
 
-    try {
-      // State
-      const state = ctx.wizard.state as State;
+    // Process Data
+    const data = this.filesService.parseData(ctx, this.state.file);
+    const errors = this.filesService.verifyData(ctx, data);
 
-      // Verify Data
-      await this.filesService.verifyData(state.file);
+    if (errors.length == 0) {
+      // Save data
+      this.state.data = data;
 
       // Confirm Upload
-      const confirmButton = Markup.button.callback('⬆️ Send', 'sendData');
+      const confirmButton = Markup.button.callback('⬆ Send', 'sendData');
       const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
 
       await ctx.editMessageText(
-        'Verified data. Want to send it?',
+        'Processed data. Want to send it?',
         Markup.inlineKeyboard([[confirmButton], [cancelButton]]),
       );
 
       ctx.wizard.next();
-    } catch {
-      this.baseTelegram.errorMessage(ctx, 'Data is not valid');
+    } else {
+      const errorMessage =
+        'Following data are not valid:\n' + '\n' + errors.join('\n');
+
+      this.baseTelegram.errorMessage(ctx, errorMessage);
       ctx.scene.leave();
     }
   }
@@ -132,8 +138,7 @@ export class FileScene {
     // Updating
     try {
       // Send
-      const state = ctx.wizard.state as State;
-      await this.filesService.sendData(state.file);
+      await this.filesService.sendData(this.state.data);
 
       // Message
       this.baseTelegram.completedMessage(ctx);
