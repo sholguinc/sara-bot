@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { validate as isValidUUID } from 'uuid';
 
+import { File } from '../../files/entities/file.entity';
 import { FilterDto } from '../dto/filter.dto';
 import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
 import { Expense } from '../entities/expense.entity';
@@ -100,8 +101,12 @@ export class ExpensesService {
   }
 
   // Create data from an array of expenses
-  async createExpenses(createExpenses: CreateExpenseDto[]) {
+  async createExpenses(createExpenses: CreateExpenseDto[], file: File) {
     const expenses = this.expenseRepository.create(createExpenses);
+
+    // Add relationship
+    expenses.forEach((expense) => (expense.file = file));
+
     await this.expenseRepository.save(expenses);
   }
 }

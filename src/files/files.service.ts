@@ -31,7 +31,7 @@ export class FilesService {
   }
 
   async createFileFromTelegram(file: File) {
-    await this.createFile({
+    return await this.createFile({
       name: file.source,
       total: file.total,
     });
@@ -130,9 +130,9 @@ export class FilesService {
     }, initialValue);
   }
 
-  async sendData(data: CreateExpenseDto[]) {
+  async sendData(data: CreateExpenseDto[], file: FileEntity) {
     // Create expenses
-    await this.expensesService.createExpenses(data);
+    await this.expensesService.createExpenses(data, file);
   }
 
   deleteFile() {

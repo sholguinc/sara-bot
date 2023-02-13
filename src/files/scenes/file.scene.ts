@@ -138,14 +138,16 @@ export class FileScene {
 
     // Updating
     try {
-      // Send Data
-      await this.filesService.sendData(this.state.data);
-
       // Get total
       this.state.file.total = this.filesService.getTotal(this.state.data);
 
       // Create file
-      await this.filesService.createFileFromTelegram(this.state.file);
+      const file = await this.filesService.createFileFromTelegram(
+        this.state.file,
+      );
+
+      // Send Data
+      await this.filesService.sendData(this.state.data, file);
 
       // Message
       this.baseTelegram.completedMessage(ctx);
