@@ -13,7 +13,7 @@ import {
 import { escapeMessage } from './escapeMessage';
 import { chunkArray } from './chunkArray';
 import { capitalize } from './capitalize';
-import { downloadFile } from './download';
+import { downloadFile, deleteFile } from './file';
 
 export {
   currentTime,
@@ -29,4 +29,5 @@ export {
   capitalize,
   getHyphenDate,
   downloadFile,
+  deleteFile,
 };

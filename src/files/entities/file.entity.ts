@@ -4,8 +4,10 @@ import {
   Entity,
   Index,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
 
+import { Expense } from '../../cash/entities/expense.entity';
 import { currentTime, dateToString, getTimestamp } from 'src/utils';
 
 @Entity({ name: 'files' })
@@ -29,8 +31,8 @@ export class File {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   total: number;
 
-  @Column({ type: 'varchar', length: 10 })
-  size: string;
+  @OneToMany(() => Expense, (expense) => expense.file)
+  expenses: Expense[];
 
   @BeforeInsert()
   setDate() {

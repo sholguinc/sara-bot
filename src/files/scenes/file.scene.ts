@@ -8,6 +8,7 @@ import { FilesService } from '../files.service';
 export interface File {
   info: object;
   source: string;
+  total: number;
 }
 
 interface State {
@@ -137,14 +138,23 @@ export class FileScene {
 
     // Updating
     try {
-      // Send
+      // Send Data
       await this.filesService.sendData(this.state.data);
+
+      // Get total
+      this.state.file.total = this.filesService.getTotal(this.state.data);
+
+      // Create file
+      await this.filesService.createFileFromTelegram(this.state.file);
 
       // Message
       this.baseTelegram.completedMessage(ctx);
     } catch {
       this.baseTelegram.errorMessage(ctx, 'There was a sending error');
     } finally {
+      // Delete csv file
+      this.filesService.deleteFile();
+
       // Finish Scene
       ctx.scene.leave();
     }

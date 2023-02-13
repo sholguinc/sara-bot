@@ -4,8 +4,11 @@ import {
   Entity,
   BeforeInsert,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
+import { File } from '../../files/entities/file.entity';
 import { currentTime, dateToString, getTimestamp } from 'src/utils';
 
 @Entity({ name: 'expenses' })
@@ -29,6 +32,13 @@ export class Expense {
   @Index()
   @Column({ type: 'bigint' })
   timestamp: string;
+
+  @ManyToOne(() => File, (file) => file.expenses, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'file_id' })
+  file: File;
 
   @BeforeInsert()
   setDate() {

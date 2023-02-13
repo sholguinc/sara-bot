@@ -2,23 +2,39 @@ import { Injectable } from '@nestjs/common';
 import { Scenes } from 'telegraf';
 import { readFileSync } from 'fs';
 import { parse } from 'papaparse';
-import { validateSync } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { BaseTelegram } from '../telegram/base.telegram';
+import { ExpensesService } from '../cash/services/expenses.service';
 
-import { CreateFileDto } from './dto/create-file.dto';
-import { CreateExpenseDto } from '../cash/dto/expense.dto';
 import { File } from './scenes/file.scene';
+import { File as FileEntity } from './entities/file.entity';
+import { CreateFileDto } from './dto/create-file.dto';
+import { CreateExpenseDto, validateExpense } from '../cash/dto/expense.dto';
 
-import { getHyphenDate, downloadFile } from 'src/utils';
+import { getHyphenDate, downloadFile, deleteFile } from 'src/utils';
 
 @Injectable()
 export class FilesService {
-  constructor(private readonly baseTelegram: BaseTelegram) {}
+  constructor(
+    @InjectRepository(FileEntity)
+    private readonly fileRepository: Repository<FileEntity>,
+    private readonly baseTelegram: BaseTelegram,
+    private readonly expensesService: ExpensesService,
+  ) {}
 
-  create(createFileDto: CreateFileDto) {
-    return 'This action adds a new file';
+  async createFile(createFileDto: CreateFileDto) {
+    const file = this.fileRepository.create(createFileDto);
+    await this.fileRepository.save(file);
+    return file;
+  }
+
+  async createFileFromTelegram(file: File) {
+    await this.createFile({
+      name: file.source,
+      total: file.total,
+    });
   }
 
   async getFileName(originalName: string) {
@@ -96,9 +112,8 @@ export class FilesService {
     const errors = [];
 
     data.forEach((row) => {
-      // Instance
-      const toValidate = plainToInstance(CreateExpenseDto, row);
-      const rowErrors = validateSync(toValidate);
+      // Validate
+      const rowErrors = validateExpense(row);
 
       if (rowErrors.length > 0) {
         errors.push(JSON.stringify(row));
@@ -108,7 +123,19 @@ export class FilesService {
     return errors;
   }
 
+  getTotal(data: CreateExpenseDto[]) {
+    const initialValue = 0;
+    return data.reduce((total, currentValue) => {
+      return total + currentValue.amount;
+    }, initialValue);
+  }
+
   async sendData(data: CreateExpenseDto[]) {
-    
+    // Create expenses
+    await this.expensesService.createExpenses(data);
+  }
+
+  deleteFile() {
+    deleteFile();
   }
 }

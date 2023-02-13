@@ -98,4 +98,10 @@ export class ExpensesService {
     }
     return totalSum;
   }
+
+  // Create data from an array of expenses
+  async createExpenses(createExpenses: CreateExpenseDto[]) {
+    const expenses = this.expenseRepository.create(createExpenses);
+    await this.expenseRepository.save(expenses);
+  }
 }

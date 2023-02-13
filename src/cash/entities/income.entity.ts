@@ -35,7 +35,10 @@ export class Income {
   timestamp: string;
 
   @Exclude()
-  @ManyToOne(() => User, (user) => user.incomes)
+  @ManyToOne(() => User, (user) => user.incomes, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

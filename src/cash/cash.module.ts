@@ -33,5 +33,6 @@ import { IncomesController } from './controllers/incomes.controller';
     SendScene,
     ConsultScene,
   ],
+  exports: [ExpensesService, IncomesService],
 })
 export class CashModule {}
