@@ -22,11 +22,6 @@ export class ExpensesController {
     return this.expensesService.create(createExpenseDto);
   }
 
-  // @Post()
-  // uploadFile(@Body() createExpenseDto: CreateExpenseDto) {
-  //   return this.expensesService.uploadFile(createExpenseDto);
-  // }
-
   @Get()
   findSome(@Query() params?: FilterDto) {
     return this.expensesService.findSome(params);

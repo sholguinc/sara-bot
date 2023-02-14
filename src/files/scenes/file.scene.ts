@@ -61,8 +61,6 @@ export class FileScene {
         'File detected',
         Markup.inlineKeyboard([[loadButton], [cancelButton]]),
       );
-
-      ctx.wizard.next();
     }
   }
 

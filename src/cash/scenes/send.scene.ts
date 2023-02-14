@@ -44,8 +44,6 @@ export class SendScene {
       'What kind of information do you want to send?',
       Markup.inlineKeyboard([[button1, button2], [button3]]),
     );
-
-    ctx.wizard.next();
   }
 
   // Actions
@@ -83,6 +81,8 @@ export class SendScene {
     const [, username] = ctx.callbackQuery['data'].split(':');
     (this.state.data as CreateIncomeDto).username = username;
     await ctx.editMessageText('I see, How much is the income amount?');
+
+    ctx.wizard.next();
   }
 
   @Action('sendExpense')
@@ -92,6 +92,8 @@ export class SendScene {
     this.state.type = Cash.EXPENSE;
     this.state.data = {} as CreateExpenseDto;
     await ctx.editMessageText('I see, How much is the expense amount?');
+
+    ctx.wizard.next();
   }
 
   // -> User types amount

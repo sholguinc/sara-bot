@@ -14,9 +14,11 @@ import { TelegramModule } from '../telegram/telegram.module';
 
 import { SendScene } from './scenes/send.scene';
 import { ConsultScene } from './scenes/consult.scene';
+import { SearchScene } from './scenes/search.scene';
 import { ConsultsService } from './services/consults.service';
 import { ExpensesController } from './controllers/expenses.controller';
 import { IncomesController } from './controllers/incomes.controller';
+import { SearchService } from './services/search.service';
 
 @Module({
   imports: [
@@ -29,9 +31,11 @@ import { IncomesController } from './controllers/incomes.controller';
     ExpensesService,
     IncomesService,
     ConsultsService,
+    SearchService,
     CashTelegram,
     SendScene,
     ConsultScene,
+    SearchScene,
   ],
   exports: [ExpensesService, IncomesService],
 })

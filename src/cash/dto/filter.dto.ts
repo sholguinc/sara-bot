@@ -13,7 +13,7 @@ export class FilterDto {
 
   @IsOptional()
   @IsString()
-  name: string;
+  likeName: string;
 
   @IsOptional()
   @IsEnum(Summary)

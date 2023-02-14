@@ -43,7 +43,6 @@ export class ConsultScene {
       'Choose a type of consult:',
       Markup.inlineKeyboard(buttons),
     );
-    ctx.wizard.next();
   }
 
   // -> User select summary period
@@ -115,7 +114,9 @@ export class ConsultScene {
     }
 
     const escapedMessage = escapeMessage(consultMessage);
-    await ctx.replyWithMarkdownV2(escapedMessage);
+    await ctx.editMessageText(escapedMessage, {
+      parse_mode: 'MarkdownV2',
+    });
     if (state.type == Type.OVERALL) {
       ctx.sendSticker({ source: stateSticker });
     }

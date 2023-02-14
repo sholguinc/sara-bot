@@ -3,7 +3,8 @@ import { Markup } from 'telegraf';
 import { Type } from '../models/type.model';
 import { Cash } from '../models/cash.model';
 import { Summary } from '../models/summary.model';
-import { capitalize } from '../../utils/capitalize';
+import { capitalize } from '../../utils';
+import { chunkArray } from '../../utils';
 
 // Summary Buttons
 enum SummaryEmojis {

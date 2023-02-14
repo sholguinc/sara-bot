@@ -7,7 +7,7 @@ import { priceFilter } from './priceFilter';
 export async function getWhereOptions(params: FilterDto) {
   const where: FindOptionsWhere<any> = {};
 
-  const { name, summary = Summary.MONTH } = params;
+  const { likeName, summary = Summary.MONTH } = params;
   const { minPrice, maxPrice } = params;
   const { username } = params;
 
@@ -18,8 +18,8 @@ export async function getWhereOptions(params: FilterDto) {
   }
 
   // Name Filter
-  if (name) {
-    where.concept = ILike(`%${name}%`);
+  if (likeName) {
+    where.concept = ILike(`%${likeName}%`);
   }
 
   // Date Filter
