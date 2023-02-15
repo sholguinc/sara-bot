@@ -4,15 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { validate as isValidUUID } from 'uuid';
 
-import { File } from '../../files/entities/file.entity';
-import { FilterDto } from '../dto/filter.dto';
-import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
-import { Expense } from '../entities/expense.entity';
 import { BaseTelegram } from '../../telegram/base.telegram';
 import { getWhereOptions } from '../utils';
+
+import { File } from '../../files/entities/file.entity';
+import { Expense } from '../entities/expense.entity';
+import { FilterDto } from '../dto/filter.dto';
+import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
 
 @Injectable()
 export class ExpensesService {
@@ -30,17 +31,15 @@ export class ExpensesService {
 
   async findSome(params?: FilterDto) {
     const where: FindOptionsWhere<Expense> = await getWhereOptions(params);
-    const { limit = 10, offset = 0 } = params;
 
-    const expenses = await this.expenseRepository.find({
-      take: limit,
-      skip: offset,
+    const [expenses, total] = await this.expenseRepository.findAndCount({
       where,
+      order: {
+        timestamp: 'DESC',
+      },
     });
-    if (expenses.length == 0) {
-      return 'There are no expenses';
-    }
-    return expenses;
+
+    return { expenses, total };
   }
 
   async findOne(id: string) {

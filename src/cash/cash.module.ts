@@ -18,7 +18,6 @@ import { SearchScene } from './scenes/search.scene';
 import { ConsultsService } from './services/consults.service';
 import { ExpensesController } from './controllers/expenses.controller';
 import { IncomesController } from './controllers/incomes.controller';
-import { SearchService } from './services/search.service';
 
 @Module({
   imports: [
@@ -31,7 +30,6 @@ import { SearchService } from './services/search.service';
     ExpensesService,
     IncomesService,
     ConsultsService,
-    SearchService,
     CashTelegram,
     SendScene,
     ConsultScene,

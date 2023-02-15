@@ -4,14 +4,6 @@ import { Summary } from '../models/summary.model';
 
 export class FilterDto {
   @IsOptional()
-  @IsPositive()
-  limit: number;
-
-  @IsOptional()
-  @Min(0)
-  offset: number;
-
-  @IsOptional()
   @IsString()
   likeName: string;
 

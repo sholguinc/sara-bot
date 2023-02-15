@@ -8,11 +8,12 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { validate as isValidUUID } from 'uuid';
 
 import { UsersService } from '../../users/users.service';
-import { CreateIncomeDto, UpdateIncomeDto } from '../dto/income.dto';
-import { Income } from '../entities/income.entity';
-import { FilterDto } from '../dto/filter.dto';
 import { BaseTelegram } from '../../telegram/base.telegram';
 import { getWhereOptions } from '../utils';
+
+import { CreateIncomeDto, UpdateIncomeDto } from '../dto/income.dto';
+import { FilterDto } from '../dto/filter.dto';
+import { Income } from '../entities/income.entity';
 
 @Injectable()
 export class IncomesService {
@@ -34,18 +35,16 @@ export class IncomesService {
 
   async findSome(params?: FilterDto) {
     const where: FindOptionsWhere<Income> = await getWhereOptions(params);
-    const { limit = 10, offset = 0 } = params;
 
-    const incomes = await this.incomeRepository.find({
+    const [incomes, total] = await this.incomeRepository.findAndCount({
       relations: ['user'],
-      take: limit,
-      skip: offset,
       where,
+      order: {
+        timestamp: 'DESC',
+      },
     });
-    if (incomes.length == 0) {
-      return 'There are no incomes';
-    }
-    return incomes;
+
+    return { incomes, total };
   }
 
   async findOne(id: string) {

@@ -20,7 +20,10 @@ export function searchButtons() {
 
   const buttons = chunkArray(buttonArray, 2).reverse() as any[];
 
-  const continueButton = Markup.button.callback('➡️Continue', 'continueSearch');
+  const continueButton = Markup.button.callback(
+    '➡️ Continue',
+    'continueSearch',
+  );
 
   buttons.push([continueButton, cancelButton]);
 
@@ -43,6 +46,15 @@ export function searchMessage(search: Search) {
 
   const message = base + '\n\n' + criteriaMessage.join('\n');
   return { message, criteria };
+}
+
+// Pagination
+export function pageButtons() {
+  const prevButton = Markup.button.callback('⬅', 'prevPage');
+  const finishButton = Markup.button.callback('❌', 'finishPage');
+  const nextButton = Markup.button.callback('➡', 'nextPage');
+
+  return [[prevButton, finishButton, nextButton]];
 }
 
 // Cancel Button

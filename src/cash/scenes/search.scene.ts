@@ -2,14 +2,23 @@ import { Action, Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Markup, Scenes } from 'telegraf';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
-import { SearchService } from '../services/search.service';
+import { ExpensesService } from '../services/expenses.service';
 
 import { FilterDto } from '../dto/filter.dto';
-import { Search, searchMessage } from '../utils';
+import { pageButtons, Search, searchMessage } from '../utils';
+import { PAGE_LIMIT } from '../../config/constants';
 
 import { searchButtons, summaryButtons } from '../utils';
-import { chunkArray, escapeMessage } from 'src/utils';
+import { chunkArray, escapeMessage, localString } from 'src/utils';
 import { Summary } from '../models/summary.model';
+import { Expense } from '../entities/expense.entity';
+
+// data interface
+interface Data {
+  offset: number;
+  total: number;
+  expenses: Expense[];
+}
 
 // State Interface
 interface State {
@@ -17,6 +26,7 @@ interface State {
   criteria: any[];
   filter: FilterDto;
   criteriaMessage: string;
+  data: Data;
 }
 
 // Scene
@@ -26,7 +36,7 @@ export class SearchScene {
 
   constructor(
     private readonly baseTelegram: BaseTelegram,
-    private readonly searchService: SearchService,
+    private readonly expensesService: ExpensesService,
   ) {}
 
   // -> User enter to scene
@@ -42,6 +52,8 @@ export class SearchScene {
     };
     this.state.criteria = [];
     this.state.filter = {} as FilterDto;
+    this.state.criteriaMessage = '';
+    this.state.data = { offset: 0 } as Data;
 
     const buttonArray = summaryButtons();
     const buttons = chunkArray(buttonArray, 2);
@@ -147,26 +159,131 @@ export class SearchScene {
   }
 
   @Action('confirmSearch')
-  async search(@Ctx() ctx: Scenes.WizardContext) {
+  async search(@Ctx() ctx) {
     await ctx.editMessageText('Loading...');
-
     try {
-      // Search Message
-      const searchMessage = await this.searchService.getSearch(
+      const { expenses, total } = await this.expensesService.findSome(
         this.state.filter,
-        this.state.criteriaMessage,
       );
 
-      // Send message
-      const escapedMessage = escapeMessage(searchMessage);
-      await ctx.editMessageText(escapedMessage, {
-        parse_mode: 'MarkdownV2',
-      });
+      if (total == 0) {
+        await this.noExpenses(ctx, this.state.criteriaMessage);
+      } else {
+        this.state.data.expenses = expenses;
+        this.state.data.total = total;
+      }
+
+      ctx.wizard.next();
+      ctx.wizard.steps[ctx.wizard.cursor](ctx);
     } catch {
       this.baseTelegram.errorMessage(ctx);
-    } finally {
       ctx.scene.leave();
     }
+  }
+
+  // -> Enter to pagination
+
+  @WizardStep(4)
+  async pagination(@Ctx() ctx: Scenes.WizardContext) {
+    try {
+      if (!ctx.message) {
+        // data
+        const pageData = this.getPageData(this.state.data);
+
+        // process message
+        const searchMessage = this.getSearchMessage(pageData, this.state);
+        const escapedMessage = escapeMessage(searchMessage);
+        const buttons = pageButtons();
+
+        // send message
+        await ctx.editMessageText(escapedMessage, {
+          parse_mode: 'MarkdownV2',
+          reply_markup: {
+            inline_keyboard: buttons,
+          },
+        });
+      }
+    } catch {
+      this.baseTelegram.errorMessage(ctx);
+      ctx.scene.leave();
+    }
+  }
+
+  // Pagination actions
+  @Action('prevPage')
+  async prevPage(@Ctx() ctx) {
+    let offset = this.state.data.offset;
+
+    offset -= PAGE_LIMIT;
+
+    if (0 <= offset) {
+      this.state.data.offset = offset;
+
+      ctx.wizard.selectStep(3);
+      ctx.wizard.steps[ctx.wizard.cursor](ctx);
+    }
+  }
+
+  @Action('nextPage')
+  async nextPage(@Ctx() ctx) {
+    let offset = this.state.data.offset;
+
+    offset += PAGE_LIMIT;
+
+    if (offset < this.state.data.total) {
+      this.state.data.offset = offset;
+
+      ctx.wizard.selectStep(3);
+      ctx.wizard.steps[ctx.wizard.cursor](ctx);
+    }
+  }
+
+  @Action('finishPage')
+  async cancelPage(@Ctx() ctx: Scenes.WizardContext) {
+    ctx.editMessageText('Search completed');
+    ctx.scene.leave();
+  }
+
+  // No expenses function
+  async noExpenses(ctx, criteriaMessage: string) {
+    // Message
+    const criteria = '_*Search criteria:*_' + '\n' + criteriaMessage;
+    const message = criteria + '\n\n' + 'There are no expenses';
+
+    // Send Message
+    const escapedMessage = escapeMessage(message);
+    await ctx.editMessageText(escapedMessage, {
+      parse_mode: 'MarkdownV2 ',
+    });
+
+    ctx.scene.leave();
+  }
+
+  // get Data
+  getPageData(data: Data): Expense[] {
+    return data.expenses.slice(data.offset, data.offset + PAGE_LIMIT);
+  }
+
+  // Message function
+  getSearchMessage(expenses: Expense[], state: State) {
+    const header = '_*Search criteria:*_' + '\n' + state.criteriaMessage;
+
+    const offset = this.state.data.offset;
+    const total = this.state.data.total;
+    const page = `${offset + 1}-${offset + PAGE_LIMIT} of ${total}`;
+
+    const items = expenses.map((expense) => {
+      // Information
+      const date = localString(expense.transactionDate);
+      const amount = Number(expense.amount).toFixed(2);
+      const concept = expense.concept;
+
+      return date + ' -> ' + '-' + 'S/.' + amount + ' - ' + concept;
+    });
+
+    const results = `_*Search results (${page}):*_` + '\n' + items.join('\n');
+
+    return header + '\n\n' + results;
   }
 
   // Cancel Action

@@ -2,7 +2,7 @@ import { summaryButtons, typeButtons, cashButtons } from './consultButtons';
 import { getLimits, getDateLimits } from './summaryLimits';
 import { getWhereOptions } from './getWhereOptions';
 import { priceFilter } from './priceFilter';
-import { searchMessage, searchButtons, Search } from './search';
+import { searchMessage, searchButtons, Search, pageButtons } from './search';
 
 export {
   summaryButtons,
@@ -15,4 +15,5 @@ export {
   searchButtons,
   searchMessage,
   Search,
+  pageButtons,
 };
