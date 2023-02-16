@@ -33,6 +33,7 @@ export class ExpensesService {
     const where: FindOptionsWhere<Expense> = await getWhereOptions(params);
 
     const [expenses, total] = await this.expenseRepository.findAndCount({
+      relations: ['file'],
       where,
       order: {
         timestamp: 'DESC',

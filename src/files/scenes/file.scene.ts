@@ -61,6 +61,9 @@ export class FileScene {
         'File detected',
         Markup.inlineKeyboard([[loadButton], [cancelButton]]),
       );
+    } else {
+      await ctx.reply('Error: File not found');
+      ctx.scene.leave();
     }
   }
 

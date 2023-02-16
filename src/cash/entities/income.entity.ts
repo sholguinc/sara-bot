@@ -44,7 +44,11 @@ export class Income {
 
   @Expose()
   get username() {
-    return this.user.username;
+    if (this.user) {
+      return this.user.username;
+    } else {
+      return null;
+    }
   }
 
   @BeforeInsert()

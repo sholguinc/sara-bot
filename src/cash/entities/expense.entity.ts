@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 
 import { File } from '../../files/entities/file.entity';
 import { currentTime, dateToString, getTimestamp } from 'src/utils';
@@ -33,12 +34,22 @@ export class Expense {
   @Column({ type: 'bigint' })
   timestamp: string;
 
+  @Exclude()
   @ManyToOne(() => File, (file) => file.expenses, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'file_id' })
   file: File;
+
+  @Expose()
+  get filename() {
+    if (this.file) {
+      return this.file.name;
+    } else {
+      return null;
+    }
+  }
 
   @BeforeInsert()
   setDate() {

@@ -5,9 +5,14 @@ import { readFileSync } from 'fs';
 @Injectable()
 export class BaseTelegram {
   // Methods
-  completedMessage(ctx: Scenes.WizardContext) {
+  completedMessage(ctx: Scenes.WizardContext, message?: string) {
+    const completedMessage = message ?? 'Data sent successfully!';
+    ctx.editMessageText(completedMessage);
+    this.completedSticker(ctx);
+  }
+
+  completedSticker(ctx: Scenes.WizardContext) {
     const confirmedSticker = readFileSync('./public/confirmed.webp');
-    ctx.editMessageText(`Data sent successfully!`);
     ctx.sendSticker({ source: confirmedSticker });
   }
 

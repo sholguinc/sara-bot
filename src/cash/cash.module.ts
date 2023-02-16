@@ -9,12 +9,14 @@ import { ExpensesService } from './services/expenses.service';
 import { Income } from './entities/income.entity';
 import { IncomesService } from './services/incomes.service';
 
+import { ConsultsService } from './services/consults.service';
 import { TelegramModule } from '../telegram/telegram.module';
 
 import { SendScene } from './scenes/send.scene';
 import { ConsultScene } from './scenes/consult.scene';
 import { SearchScene } from './scenes/search.scene';
-import { ConsultsService } from './services/consults.service';
+import { DataScene } from './scenes/data.scene';
+
 import { ExpensesController } from './controllers/expenses.controller';
 import { IncomesController } from './controllers/incomes.controller';
 
@@ -32,6 +34,7 @@ import { IncomesController } from './controllers/incomes.controller';
     SendScene,
     ConsultScene,
     SearchScene,
+    DataScene,
   ],
   exports: [ExpensesService, IncomesService],
 })
