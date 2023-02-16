@@ -34,4 +34,17 @@ export class AppServices {
     await ctx.reply(helpText);
     await ctx.sendSticker({ source: helpSticker });
   }
+
+  async unknownCommand(ctx: Context) {
+    const message = ctx.message;
+
+    await ctx.reply(
+      `Unknown command: ${message['text']}.` +
+        '\n' +
+        'Type /help to see the list of available commands.',
+      {
+        reply_to_message_id: message.message_id,
+      },
+    );
+  }
 }

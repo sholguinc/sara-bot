@@ -168,13 +168,18 @@ export class SearchScene {
 
       if (total == 0) {
         await this.noExpenses(ctx, this.state.criteriaMessage);
+        ctx.scene.leave();
+      } else if (total <= PAGE_LIMIT) {
+        this.state.data.total = total;
+        await this.returnExpenses(ctx, expenses, this.state);
+        ctx.scene.leave();
       } else {
         this.state.data.expenses = expenses;
         this.state.data.total = total;
-      }
 
-      ctx.wizard.next();
-      ctx.wizard.steps[ctx.wizard.cursor](ctx);
+        ctx.wizard.next();
+        ctx.wizard.steps[ctx.wizard.cursor](ctx);
+      }
     } catch {
       this.baseTelegram.errorMessage(ctx);
       ctx.scene.leave();
@@ -240,7 +245,7 @@ export class SearchScene {
 
   @Action('finishPage')
   async cancelPage(@Ctx() ctx: Scenes.WizardContext) {
-    ctx.editMessageText('Search completed');
+    ctx.editMessageText('Finished');
     ctx.scene.leave();
   }
 
@@ -253,10 +258,20 @@ export class SearchScene {
     // Send Message
     const escapedMessage = escapeMessage(message);
     await ctx.editMessageText(escapedMessage, {
-      parse_mode: 'MarkdownV2 ',
+      parse_mode: 'MarkdownV2',
     });
+  }
 
-    ctx.scene.leave();
+  // return expenses
+  async returnExpenses(ctx, expenses: Expense[], state: State) {
+    // Message
+    const searchMessage = this.getSearchMessage(expenses, state);
+    const escapedMessage = escapeMessage(searchMessage);
+
+    // Send Message
+    await ctx.editMessageText(escapedMessage, {
+      parse_mode: 'MarkdownV2',
+    });
   }
 
   // get Data
@@ -270,7 +285,9 @@ export class SearchScene {
 
     const offset = this.state.data.offset;
     const total = this.state.data.total;
-    const page = `${offset + 1}-${offset + PAGE_LIMIT} of ${total}`;
+    const lowerLimit = Math.max(offset + 1, 1);
+    const upperLimit = Math.min(offset + PAGE_LIMIT, total);
+    const page = `${lowerLimit}-${upperLimit} of ${total}`;
 
     const items = expenses.map((expense) => {
       // Information

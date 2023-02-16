@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Help, Start, Update, Ctx } from 'nestjs-telegraf';
-import { Context } from 'telegraf';
+import { Help, Start, Update, Ctx, Hears, Command } from 'nestjs-telegraf';
+import { Context, Scenes } from 'telegraf';
 
 import { AppServices } from './app.service';
 
@@ -17,5 +17,30 @@ export class AppTelegram {
   @Help()
   async helpCommand(ctx: Context) {
     await this.appService.getHelp(ctx);
+  }
+
+  @Command('send')
+  async sendCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('sendWizardScene');
+  }
+
+  @Command('consult')
+  async consultCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('consultWizardScene');
+  }
+
+  @Command('search')
+  async searchCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('searchWizardScene');
+  }
+
+  @Command('file')
+  async fileCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('fileWizardScene');
+  }
+
+  @Hears(/\/+/)
+  async unknownCommand(ctx: Scenes.SceneContext) {
+    await this.appService.unknownCommand(ctx);
   }
 }

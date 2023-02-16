@@ -53,7 +53,7 @@ export function cashButtons() {
     '📉 Expenses',
     `cash:${Cash.EXPENSE}`,
   );
-  const bothButton = Markup.button.callback('💸 Both', `cash:both`);
+  const bothButton = Markup.button.callback('💸 All', `cash:${Cash.ALL}`);
 
   return [[incomesButton, expensesButton], [bothButton], [cancelButton]];
 }

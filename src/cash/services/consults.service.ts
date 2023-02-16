@@ -4,6 +4,7 @@ import { IncomesService } from './incomes.service';
 import { ExpensesService } from './expenses.service';
 
 import { FilterDto } from '../dto/filter.dto';
+import { PAGE_LIMIT } from '../../config/constants';
 
 import { Income } from '../entities/income.entity';
 import { Expense } from '../entities/expense.entity';
@@ -12,7 +13,7 @@ import { Cash } from '../models/cash.model';
 import { Summary } from '../models/summary.model';
 
 import { getDateLimits } from '../utils';
-import { localString, capitalize } from 'src/utils';
+import { capitalize, localString, mergeItems } from 'src/utils';
 
 @Injectable()
 export class ConsultsService {
@@ -22,47 +23,71 @@ export class ConsultsService {
   ) {}
 
   async getDetails(state) {
-    let data;
+    let items, total;
     const filter = { summary: state.summary as Summary } as FilterDto;
     if (state.cash == Cash.INCOME) {
-      data = await this.incomesService.findSome(filter);
+      const results = await this.incomesService.findSome(filter);
+      items = results.incomes;
+      total = results.total;
     } else if (state.cash == Cash.EXPENSE) {
-      data = await this.expensesService.findSome(filter);
+      const results = await this.expensesService.findSome(filter);
+      items = results.expenses;
+      total = results.total;
+    } else if (state.cash == Cash.ALL) {
+      const incomes = await this.incomesService.findSome(filter);
+      const expenses = await this.expensesService.findSome(filter);
+
+      items = mergeItems(expenses.expenses, incomes.incomes);
+      total = incomes.total + expenses.total;
     }
 
-    const message = Array.isArray(data)
-      ? this.detailsMessage(data, state.summary, state.cash)
-      : data;
-
-    return { message };
+    return { items, total };
   }
 
-  detailsMessage(data: Income[] | Expense[], summary: Summary, cash: Cash) {
+  detailsMessage(
+    items: Income[] | Expense[],
+    data,
+    summary: Summary,
+    cash: Cash,
+  ) {
     // Title
     const title = this.getTitle(summary);
 
+    // Pagination
+    const total = data.total;
+    const lowerLimit = Math.max(data.offset + 1, 1);
+    const upperLimit = Math.min(data.offset + PAGE_LIMIT, total);
+    const page = `${lowerLimit}-${upperLimit} of ${total}`;
+
     // Subtitle
-    const subtitle = `_*${cash}s:*_`;
+    let subtitle = `_*${cash}s (${page}):*_`;
+
+    if (cash == Cash.ALL) {
+      subtitle = `_*Transactions (${page}):*_`;
+    }
 
     // Show Data
-    const signs = { Income: ' + ', Expense: ' - ' };
-    const dataArray = data.map((value) => {
+    const dataArray = items.map((value) => {
       // Information
       const date = localString(value.transactionDate);
-      const sign = signs[cash];
       const amount = Number(value.amount).toFixed(2);
       const concept = value.concept;
 
+      let sign, user;
+      if (value instanceof Expense) {
+        sign = ' - ';
+        user = '';
+      } else if (value instanceof Income) {
+        sign = ' + ';
+        user = ' - ' + value.user.username;
+      }
+
       // Data row
-      const user = cash == Cash.INCOME ? ' - ' + value.user.username : '';
       return date + ' -> ' + sign + 'S/.' + amount + ' - ' + concept + user;
     });
-    const dataText = dataArray.reduce((currentText, row) => {
-      return currentText + '\n' + row;
-    }, '');
 
     // Message
-    return title + '\n\n' + subtitle + dataText;
+    return title + '\n\n' + subtitle + '\n' + dataArray.join('\n');
   }
 
   async getOverall(state) {
@@ -87,11 +112,14 @@ export class ConsultsService {
     const flow = totalIncome - totalExpense;
     const flowText = Math.abs(flow).toFixed(2);
     const sign = Math.sign(flow);
-    if (flow >= 0) {
+    if (flow > 0) {
       cashFlow = `_*Cash Flow:*_ + S/.${flowText}`;
       state = 'State: Positive';
-    } else {
+    } else if (flow < 0) {
       cashFlow = `_*Cash Flow:*_ - S/.${flowText}`;
+      state = 'State: Negative';
+    } else {
+      cashFlow = `_*Cash Flow:*_ + S/.${flowText}`;
       state = 'State: Negative';
     }
 
