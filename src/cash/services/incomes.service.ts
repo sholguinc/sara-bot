@@ -14,6 +14,7 @@ import { getWhereOptions } from '../utils';
 import { CreateIncomeDto, UpdateIncomeDto } from '../dto/income.dto';
 import { FilterDto } from '../dto/filter.dto';
 import { Income } from '../entities/income.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Injectable()
 export class IncomesService {
@@ -41,6 +42,20 @@ export class IncomesService {
       where,
       order: {
         timestamp: 'DESC',
+      },
+    });
+
+    return { incomes, total };
+  }
+
+  async findByUser(user: User) {
+    const userId = user.id;
+    const [incomes, total] = await this.incomeRepository.findAndCount({
+      relations: ['user'],
+      where: {
+        user: {
+          id: userId,
+        },
       },
     });
 

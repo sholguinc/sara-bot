@@ -71,19 +71,18 @@ export class ConsultsService {
       // Information
       const date = localString(value.transactionDate);
       const amount = Number(value.amount).toFixed(2);
-      const concept = value.concept;
 
-      let sign, user;
+      let sign, add;
       if (value instanceof Expense) {
         sign = ' - ';
-        user = '';
+        add = ' - ' + value.concept;
       } else if (value instanceof Income) {
         sign = ' + ';
-        user = ' - ' + value.user.username;
+        add = ' - ' + value.user.username;
       }
 
       // Data row
-      return date + ' -> ' + sign + 'S/.' + amount + ' - ' + concept + user;
+      return date + ' -> ' + sign + 'S/.' + amount + ' - ' + add;
     });
 
     // Message

@@ -9,6 +9,7 @@ const configSchema = Joi.object({
   APP_PORT: Joi.number().optional(),
   TZ: Joi.string().required(),
   API_BOT_TOKEN: Joi.string().required(),
+  ADMIN_USER_ID: Joi.string().required(),
 });
 
 export default configSchema;

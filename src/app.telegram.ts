@@ -49,6 +49,11 @@ export class AppTelegram {
     ctx.scene.enter('dataWizardScene');
   }
 
+  @Command('users')
+  async usersCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('usersWizardScene');
+  }
+
   @Hears(/\/+/)
   async unknownCommand(ctx: Scenes.SceneContext) {
     await this.appService.unknownCommand(ctx);

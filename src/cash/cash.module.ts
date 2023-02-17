@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UsersModule } from '../users/users.module';
@@ -17,16 +17,12 @@ import { ConsultScene } from './scenes/consult.scene';
 import { SearchScene } from './scenes/search.scene';
 import { DataScene } from './scenes/data.scene';
 
-import { ExpensesController } from './controllers/expenses.controller';
-import { IncomesController } from './controllers/incomes.controller';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([Expense, Income]),
-    UsersModule,
+    forwardRef(() => UsersModule),
     TelegramModule,
   ],
-  controllers: [ExpensesController, IncomesController],
   providers: [
     ExpensesService,
     IncomesService,

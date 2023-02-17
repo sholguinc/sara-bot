@@ -4,6 +4,7 @@ import {
 } from 'nestjs-telegraf';
 import { ConfigType } from '@nestjs/config';
 import { session } from 'telegraf';
+import { AuthMiddleware } from '../auth/auth.middleware';
 
 import config from '../config/config';
 
@@ -15,7 +16,7 @@ export const telegramAsyncConfig: TelegrafModuleAsyncOptions = {
     const { apiBotToken } = configService.telegram;
     return {
       token: apiBotToken,
-      middlewares: [session()],
+      middlewares: [AuthMiddleware, session()],
     };
   },
 };

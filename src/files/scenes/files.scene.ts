@@ -111,7 +111,6 @@ export class FilesScene {
   async fileInfo(@Ctx() ctx) {
     try {
       const file = this.state.content.file;
-
       const { expenses, total } = await this.expensesService.findByFile(file);
 
       if (total == 0) {
