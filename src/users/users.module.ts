@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { UsersScene } from './scenes/users.scene';
+import { ActivateScene } from './scenes/activate.scene';
 
 import { TelegramModule } from '../telegram/telegram.module';
 import { CashModule } from '../cash/cash.module';
@@ -14,7 +15,7 @@ import { CashModule } from '../cash/cash.module';
     TelegramModule,
     forwardRef(() => CashModule),
   ],
-  providers: [UsersService, UsersScene],
+  providers: [UsersService, UsersScene, ActivateScene],
   exports: [UsersService],
 })
 export class UsersModule {}

@@ -28,11 +28,8 @@ export class UsersService {
   }
 
   async findAll() {
-    const users = await this.userRepository.find();
-    if (users.length == 0) {
-      return { message: 'There are no users' };
-    }
-    return users;
+    const [users, total] = await this.userRepository.findAndCount();
+    return { users, total };
   }
 
   async findActives() {

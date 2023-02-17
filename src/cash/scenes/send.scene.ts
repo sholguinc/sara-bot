@@ -68,6 +68,8 @@ export class SendScene {
     });
 
     const buttons = chunkArray(buttonArray, 2);
+    const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
+    buttons.push([cancelButton]);
 
     await ctx.editMessageText(
       'Which user provides the income?',

@@ -49,6 +49,9 @@ export class UsersScene {
 
       const buttons = chunkArray(usersArray, 2);
 
+      const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
+      buttons.push([cancelButton]);
+
       await ctx.replyWithMarkdownV2(
         'Select user to get information from it',
         Markup.inlineKeyboard(buttons),

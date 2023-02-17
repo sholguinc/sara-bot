@@ -54,6 +54,11 @@ export class AppTelegram {
     ctx.scene.enter('usersWizardScene');
   }
 
+  @Command('activate')
+  async activeCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('activateWizardScene');
+  }
+
   @Hears(/\/+/)
   async unknownCommand(ctx: Scenes.SceneContext) {
     await this.appService.unknownCommand(ctx);
