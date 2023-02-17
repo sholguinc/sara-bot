@@ -17,8 +17,8 @@ interface State {
 }
 
 // Scene
-@Wizard('fileWizardScene')
-export class FileScene {
+@Wizard('uploadWizardScene')
+export class UploadScene {
   private state: State;
 
   constructor(

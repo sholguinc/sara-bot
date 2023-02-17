@@ -14,7 +14,7 @@ import { escapeMessage } from './escapeMessage';
 import { chunkArray } from './chunkArray';
 import { capitalize } from './capitalize';
 import { downloadFile, deleteFile } from './file';
-import { mergeItems } from './sortItems';
+import { mergeItems, sortItems } from './sortItems';
 
 export {
   currentTime,
@@ -32,4 +32,5 @@ export {
   downloadFile,
   deleteFile,
   mergeItems,
+  sortItems,
 };

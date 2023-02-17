@@ -8,9 +8,9 @@ export function mergeItems(expenses: Expense[], incomes: Income[]) {
   return items.sort(sortItems);
 }
 
-function sortItems(firstItem, secondItem) {
-  const firstDate = Number(firstItem.transactionDate);
-  const secondDate = Number(secondItem.transactionDate);
+export function sortItems(firstItem, secondItem) {
+  const firstDate = Number(firstItem.timestamp);
+  const secondDate = Number(secondItem.timestamp);
 
   if (firstDate < secondDate) {
     return -1;

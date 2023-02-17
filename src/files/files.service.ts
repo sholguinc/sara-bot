@@ -8,11 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseTelegram } from '../telegram/base.telegram';
 import { ExpensesService } from '../cash/services/expenses.service';
 
-import { File } from './scenes/file.scene';
+import { File } from './scenes/upload.scene';
 import { File as FileEntity } from './entities/file.entity';
 import { CreateFileDto } from './dto/create-file.dto';
 import { CreateExpenseDto, validateExpense } from '../cash/dto/expense.dto';
 
+import { PAGE_LIMIT } from '../config/constants';
 import { getHyphenDate, downloadFile, deleteFile } from 'src/utils';
 
 @Injectable()
@@ -35,6 +36,18 @@ export class FilesService {
       name: file.source,
       total: file.total,
     });
+  }
+
+  async findAll() {
+    const [files, total] = await this.fileRepository.findAndCount({
+      take: PAGE_LIMIT,
+      skip: 0,
+      order: {
+        timestamp: 'DESC',
+      },
+    });
+
+    return { files, total };
   }
 
   async getFileName(originalName: string) {

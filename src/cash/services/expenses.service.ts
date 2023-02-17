@@ -43,6 +43,20 @@ export class ExpensesService {
     return { expenses, total };
   }
 
+  async findByFile(file: File) {
+    const fileId = file.id;
+    const [expenses, total] = await this.expenseRepository.findAndCount({
+      relations: ['file'],
+      where: {
+        file: {
+          id: fileId,
+        },
+      },
+    });
+
+    return { expenses, total };
+  }
+
   async findOne(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException(`${id} is not a valid UUID`);

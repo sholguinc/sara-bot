@@ -34,9 +34,14 @@ export class AppTelegram {
     ctx.scene.enter('searchWizardScene');
   }
 
-  @Command('file')
-  async fileCommand(ctx: Scenes.SceneContext) {
-    ctx.scene.enter('fileWizardScene');
+  @Command('upload')
+  async uploadCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('uploadWizardScene');
+  }
+
+  @Command('files')
+  async filesCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('filesWizardScene');
   }
 
   @Command('data')
@@ -47,5 +52,10 @@ export class AppTelegram {
   @Hears(/\/+/)
   async unknownCommand(ctx: Scenes.SceneContext) {
     await this.appService.unknownCommand(ctx);
+  }
+
+  @Hears(/[^\/]+/)
+  async replyText(ctx: Scenes.SceneContext) {
+    await this.appService.replyText(ctx);
   }
 }

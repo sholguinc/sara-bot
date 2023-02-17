@@ -47,4 +47,12 @@ export class AppServices {
       },
     );
   }
+
+  async replyText(ctx: Context) {
+    const message = ctx.message;
+
+    await ctx.reply(message['text'], {
+      reply_to_message_id: message.message_id,
+    });
+  }
 }
