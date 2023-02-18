@@ -30,6 +30,6 @@ import { SearchScene } from './scenes/search.scene';
     ConsultScene,
     SearchScene,
   ],
-  exports: [ExpensesService, IncomesService],
+  exports: [ExpensesService, IncomesService, ConsultsService],
 })
 export class CashModule {}
