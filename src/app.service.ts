@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Context } from 'telegraf';
 import { readFileSync } from 'fs';
+import { escapeMessage } from './utils';
 
 @Injectable()
 export class AppServices {
@@ -22,16 +23,22 @@ export class AppServices {
       '/start - start a conversation\n' +
       '/help - show the list of commands\n' +
       '\n' +
-      '𝑫𝑨𝑻𝑨𝑩𝑨𝑺𝑬 𝑪𝑶𝑴𝑴𝑨𝑵𝑫𝑺:\n' +
+      '_*Database Commands:*_\n' +
       '/send - send and update information to database\n' +
       '/consult - show you any information you want\n' +
-      '/updates - show you the last five updates in database\n' +
+      '/search - search expenses by some criteria\n' +
       '\n' +
-      '𝑵𝑶𝑻𝑰𝑭𝑰𝑪𝑨𝑻𝑰𝑶𝑵𝑺 𝑪𝑶𝑴𝑴𝑨𝑵𝑫𝑺:\n' +
-      '/nots - enable notifications\n' +
-      '/notsdisable - disable notifications';
+      '_*Files Commands:*_\n' +
+      '/upload - upload a csv file of expenses\n' +
+      '/files - show info of last uploaded files\n' +
+      '/data - download all data in a cvs file\n' +
+      '\n' +
+      '_*Users Commands:*_\n' +
+      '/users - show users info and their incomes\n' +
+      '/activate - activate or deactivate users';
 
-    await ctx.reply(helpText);
+    const escapedMessage = escapeMessage(helpText);
+    await ctx.replyWithMarkdownV2(escapedMessage);
     await ctx.sendSticker({ source: helpSticker });
   }
 

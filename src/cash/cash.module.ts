@@ -15,7 +15,6 @@ import { TelegramModule } from '../telegram/telegram.module';
 import { SendScene } from './scenes/send.scene';
 import { ConsultScene } from './scenes/consult.scene';
 import { SearchScene } from './scenes/search.scene';
-import { DataScene } from './scenes/data.scene';
 
 @Module({
   imports: [
@@ -30,7 +29,6 @@ import { DataScene } from './scenes/data.scene';
     SendScene,
     ConsultScene,
     SearchScene,
-    DataScene,
   ],
   exports: [ExpensesService, IncomesService],
 })

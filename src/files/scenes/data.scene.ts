@@ -4,13 +4,13 @@ import { unparse } from 'papaparse';
 import { Readable } from 'stream';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
-import { ConsultsService } from '../services/consults.service';
+import { ConsultsService } from '../../cash/services/consults.service';
 
-import { Expense } from '../entities/expense.entity';
-import { Income } from '../entities/income.entity';
+import { Expense } from '../../cash/entities/expense.entity';
+import { Income } from '../../cash/entities/income.entity';
 
-import { Cash } from '../models/cash.model';
-import { Summary } from '../models/summary.model';
+import { Cash } from '../../cash/models/cash.model';
+import { Summary } from '../../cash/models/summary.model';
 
 import { getHyphenDate } from 'src/utils';
 
