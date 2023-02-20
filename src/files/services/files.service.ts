@@ -4,17 +4,20 @@ import { readFileSync } from 'fs';
 import { parse } from 'papaparse';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
 
-import { BaseTelegram } from '../telegram/base.telegram';
-import { ExpensesService } from '../cash/services/expenses.service';
+import { BaseTelegram } from '../../telegram/base.telegram';
+import { ExpensesService } from '../../cash/services/expenses.service';
 
-import { File } from './scenes/upload.scene';
-import { File as FileEntity } from './entities/file.entity';
-import { CreateFileDto } from './dto/create-file.dto';
-import { CreateExpenseDto, validateExpense } from '../cash/dto/expense.dto';
+import { File } from '../scenes/upload.scene';
+import { File as FileEntity } from '../entities/file.entity';
 
-import { PAGE_LIMIT } from '../config/constants';
-import { getHyphenDate, downloadFile, deleteFile } from 'src/utils';
+import { CreateFileDto } from '../dto/create-file.dto';
+import { CreateExpenseDto } from '../../cash/dto/expense.dto';
+
+import { PAGE_LIMIT } from '../../config/constants';
+import { currentTime, deleteFile, downloadFile, getTimestamp } from 'src/utils';
 
 @Injectable()
 export class FilesService {
@@ -29,6 +32,12 @@ export class FilesService {
     const file = this.fileRepository.create(createFileDto);
     await this.fileRepository.save(file);
     return file;
+  }
+
+  async createFiles(createFiles: CreateFileDto[]) {
+    const files = this.fileRepository.create(createFiles);
+    await this.fileRepository.save(files);
+    return files;
   }
 
   async createFileFromTelegram(file: File) {
@@ -50,9 +59,14 @@ export class FilesService {
     return { files, total };
   }
 
-  async getFileName(originalName: string) {
+  async findByName(name: string) {
+    return await this.fileRepository.findOneBy({ name });
+  }
+
+  getFileName(originalName: string) {
+    const datetime = currentTime();
     const words = originalName.split('.');
-    words[0] = words[0] + '-' + getHyphenDate();
+    words[0] = words[0] + '-' + getTimestamp(datetime);
     return words.join('.');
   }
 
@@ -120,13 +134,15 @@ export class FilesService {
     }
   }
 
-  verifyData(ctx: Scenes.WizardContext, data: any[]): string[] {
+  verifyData(schema, data: any[]): string[] {
     // error
     const errors = [];
 
     data.forEach((row) => {
+      const toValidate = plainToInstance(schema, row);
+
       // Validate
-      const rowErrors = validateExpense(row);
+      const rowErrors = validateSync(toValidate);
 
       if (rowErrors.length > 0) {
         errors.push(JSON.stringify(row));

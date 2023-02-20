@@ -14,6 +14,7 @@ import { File } from '../../files/entities/file.entity';
 import { Expense } from '../entities/expense.entity';
 import { FilterDto } from '../dto/filter.dto';
 import { CreateExpenseDto, UpdateExpenseDto } from '../dto/expense.dto';
+import { RestoreExpenseDto } from '../dto/restore.dto';
 
 @Injectable()
 export class ExpensesService {
@@ -120,6 +121,23 @@ export class ExpensesService {
 
     // Add relationship
     expenses.forEach((expense) => (expense.file = file));
+
+    await this.expenseRepository.save(expenses);
+  }
+
+  // restore
+  async restoreExpenses(
+    restoreExpenses: RestoreExpenseDto[],
+    filesObject: object,
+  ) {
+    const expenses = this.expenseRepository.create(restoreExpenses);
+
+    // Add relationship
+    expenses.forEach((expense) => {
+      if (!expense.filename) {
+        expense.file = filesObject[expense.filename] as File;
+      }
+    });
 
     await this.expenseRepository.save(expenses);
   }

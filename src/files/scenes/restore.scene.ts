@@ -2,39 +2,56 @@ import { Action, Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Markup, Scenes } from 'telegraf';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
-import { CreateExpenseDto } from '../../cash/dto/expense.dto';
 import { FilesService } from '../services/files.service';
+import { RestoreService } from '../services/restore.service';
 
-export interface File {
-  info: object;
-  source: string;
-  total?: number;
-}
+import { RestoreIncomeDto } from '../../cash/dto/restore.dto';
+import { RestoreExpenseDto } from '../../cash/dto/restore.dto';
+
+import { File } from './upload.scene';
+
+import { Summary } from '../../cash/models/summary.model';
+import { Cash } from '../../cash/models/cash.model';
+import { Expense } from '../../cash/entities/expense.entity';
+import { Income } from '../../cash/entities/income.entity';
 
 interface State {
   file: File;
-  data: CreateExpenseDto[];
+  incomes: RestoreIncomeDto[];
+  expenses: RestoreExpenseDto[];
 }
 
 // Scene
-@Wizard('uploadWizardScene')
-export class UploadScene {
+@Wizard('restoreWizardScene')
+export class RestoreScene {
   private state: State;
 
   constructor(
     private readonly baseTelegram: BaseTelegram,
     private readonly filesService: FilesService,
+    private readonly restoreService: RestoreService,
   ) {}
 
   // -> User enter to scene
 
   @WizardStep(1)
-  async initFileSend(@Ctx() ctx: Scenes.WizardContext) {
+  async confirmRestore(@Ctx() ctx: Scenes.WizardContext) {
     // Init
     this.state = ctx.wizard.state as State;
-    this.state.file = {} as File;
 
-    await ctx.replyWithMarkdownV2('Upload the csv file');
+    const confirmButton = Markup.button.callback(
+      '✅ Confirm',
+      'getFileMessage',
+    );
+    const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
+    const keyboard = Markup.inlineKeyboard([[confirmButton, cancelButton]]);
+
+    await ctx.replyWithMarkdownV2('Are you sure to restore data?', keyboard);
+  }
+
+  @Action('getFileMessage')
+  async getFileMessage(@Ctx() ctx) {
+    await ctx.editMessageText('Upload the csv file');
     ctx.wizard.next();
   }
 
@@ -44,13 +61,15 @@ export class UploadScene {
   async getFile(@Ctx() ctx: Scenes.WizardContext) {
     if ('document' in ctx.message) {
       // File Info
-      const fileInfo = ctx.message.document;
+      const fileInformation = ctx.message.document;
 
       // File Name
-      const name = await this.filesService.getFileName(fileInfo.file_name);
+      const name = await this.filesService.getFileName(
+        fileInformation.file_name,
+      );
 
       // State
-      this.state.file.info = fileInfo;
+      this.state.file.info = fileInformation;
       this.state.file.source = name;
 
       // Message
@@ -73,11 +92,13 @@ export class UploadScene {
     await ctx.editMessageText('Loading...');
 
     try {
+      const file = this.state.file;
+
       // Verify file type
-      await this.filesService.verifyFileType(this.state.file);
+      await this.filesService.verifyFileType(file);
 
       // Download file
-      await this.filesService.downloadFile(ctx, this.state.file);
+      await this.filesService.downloadFile(ctx, file);
 
       // Verify download
 
@@ -107,27 +128,51 @@ export class UploadScene {
 
     // Process Data
     const data = this.filesService.parseData(ctx, this.state.file);
-    const errors = this.filesService.verifyData(CreateExpenseDto, data);
+    const { incomes, expenses } = this.restoreService.splitData(data);
 
-    if (errors.length == 0) {
+    const incomeErrors = this.filesService.verifyData(
+      RestoreIncomeDto,
+      incomes,
+    );
+    const expenseErrors = this.filesService.verifyData(
+      RestoreExpenseDto,
+      expenses,
+    );
+
+    const noErrors = incomeErrors.length == 0 && expenseErrors.length == 0;
+
+    if (noErrors) {
       // Save data
-      this.state.data = data;
+      this.state.incomes = incomes as RestoreIncomeDto[];
+      this.state.expenses = expenses as RestoreExpenseDto[];
 
       // Confirm Upload
       const confirmButton = Markup.button.callback('⬆ Send', 'sendData');
       const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
 
       await ctx.editMessageText(
-        'Processed data. Want to send it?',
+        'Processed data. Are you sure to restore them? ',
         Markup.inlineKeyboard([[confirmButton], [cancelButton]]),
       );
 
       ctx.wizard.next();
     } else {
-      const errorMessage =
-        'Following data are not valid:\n' + '\n' + errors.join('\n');
+      const incomeErrorsMessage =
+        incomeErrors.length == 0
+          ? ''
+          : `\nIncome errors:\n + ${incomeErrors.join('\n')}`;
 
-      this.baseTelegram.errorMessage(ctx, errorMessage);
+      const expenseErrorsMessage =
+        expenseErrors.length == 0
+          ? ''
+          : `\nExpense errors:\n + ${expenseErrors.join('\n')}`;
+
+      const message =
+        'Following data are not valid:\n' +
+        incomeErrorsMessage +
+        expenseErrorsMessage;
+
+      this.baseTelegram.errorMessage(ctx, message);
       ctx.scene.leave();
     }
   }
@@ -139,16 +184,9 @@ export class UploadScene {
 
     // Updating
     try {
-      // Get total
-      this.state.file.total = this.filesService.getTotal(this.state.data);
-
-      // Create file
-      const file = await this.filesService.createFileFromTelegram(
-        this.state.file,
-      );
-
       // Send Data
-      await this.filesService.sendData(this.state.data, file);
+      await this.restoreService.restoreIncomes(this.state.incomes);
+      await this.restoreService.restoreExpenses(this.state.expenses);
 
       // Message
       this.baseTelegram.completedMessage(ctx);

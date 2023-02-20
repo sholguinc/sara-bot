@@ -55,7 +55,14 @@ export class DataScene {
 
       const { items } = await this.consultsService.getDetails(this.state);
 
-      this.state.data = items;
+      this.state.data = items.map((value) => {
+        if (value instanceof Expense) {
+          value['cash'] = Cash.EXPENSE;
+        } else if (value instanceof Income) {
+          value['cash'] = Cash.INCOME;
+        }
+        return value;
+      });
 
       ctx.wizard.next();
       ctx.wizard.steps[ctx.wizard.cursor](ctx);
@@ -71,6 +78,7 @@ export class DataScene {
       ctx.editMessageText('Loading...');
 
       const keys = [
+        'cash',
         'concept',
         'amount',
         'transactionDate',

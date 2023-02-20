@@ -31,11 +31,14 @@ export class AppServices {
       '_*Files Commands:*_\n' +
       '/upload - upload a csv file of expenses\n' +
       '/files - show info of last uploaded files\n' +
-      '/data - download all data in a cvs file\n' +
       '\n' +
       '_*Users Commands:*_\n' +
       '/users - show users info and their incomes\n' +
-      '/activate - activate or deactivate users';
+      '/activate - activate or deactivate users\n' +
+      '\n' +
+      '_*Backup Commands:*_\n' +
+      '/data - download all data in a cvs file\n' +
+      '/restore - restore data from csv file';
 
     const escapedMessage = escapeMessage(helpText);
     await ctx.replyWithMarkdownV2(escapedMessage);

@@ -15,6 +15,7 @@ import { CreateIncomeDto, UpdateIncomeDto } from '../dto/income.dto';
 import { FilterDto } from '../dto/filter.dto';
 import { Income } from '../entities/income.entity';
 import { User } from '../../users/entities/user.entity';
+import { RestoreIncomeDto } from '../dto/restore.dto';
 
 @Injectable()
 export class IncomesService {
@@ -127,5 +128,20 @@ export class IncomesService {
       }, 0);
     }
     return totalSum;
+  }
+
+  // restore
+  async restoreIncomes(
+    restoreIncomes: RestoreIncomeDto[],
+    usersObject: object,
+  ) {
+    const incomes = this.incomeRepository.create(restoreIncomes);
+
+    // Add relationship
+    incomes.forEach((income) => {
+      income.user = usersObject[income.username] as User;
+    });
+
+    await this.incomeRepository.save(incomes);
   }
 }

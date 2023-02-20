@@ -10,7 +10,13 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 
 import { File } from '../../files/entities/file.entity';
-import { currentTime, dateToString, getTimestamp } from 'src/utils';
+
+import {
+  currentTime,
+  dateFromMillis,
+  dateToString,
+  getTimestamp,
+} from 'src/utils';
 
 @Entity({ name: 'expenses' })
 export class Expense {
@@ -52,9 +58,15 @@ export class Expense {
   }
 
   @BeforeInsert()
-  setDate() {
-    const datetime = currentTime();
-    this.transactionDate = dateToString(datetime);
-    this.timestamp = getTimestamp(datetime);
+  setExpenseDate() {
+    let expenseDatetime;
+    if (!this.timestamp) {
+      expenseDatetime = currentTime();
+      this.timestamp = getTimestamp(expenseDatetime);
+      this.transactionDate = dateToString(expenseDatetime);
+    } else if (!this.transactionDate) {
+      expenseDatetime = dateFromMillis(this.timestamp);
+      this.transactionDate = dateToString(expenseDatetime);
+    }
   }
 }
