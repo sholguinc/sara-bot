@@ -13,9 +13,9 @@ import { User } from '../../users/entities/user.entity';
 
 import {
   currentTime,
-  dateFromMillis,
   dateToString,
   getTimestamp,
+  timestampToISODate,
 } from '../../utils';
 
 @Entity({ name: 'incomes' })
@@ -65,8 +65,7 @@ export class Income {
       this.timestamp = getTimestamp(incomeDatetime);
       this.transactionDate = dateToString(incomeDatetime);
     } else if (!this.transactionDate) {
-      incomeDatetime = dateFromMillis(this.timestamp);
-      this.transactionDate = dateToString(incomeDatetime);
+      this.transactionDate = timestampToISODate(this.timestamp);
     }
   }
 }

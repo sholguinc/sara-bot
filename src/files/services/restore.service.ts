@@ -16,7 +16,7 @@ import {
 import { RestoreFileDto } from '../dto/restore-file.dto';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
 
-import { dateFromMillis, dateToString, filterKeys } from 'src/utils';
+import { filterKeys, timestampToISODate } from 'src/utils';
 import { Role } from '../../auth/models/roles.model';
 
 @Injectable()
@@ -31,11 +31,11 @@ export class RestoreService {
 
   addDate(data: any[]) {
     return data.map((value) => {
-      if (value.transactionDate) {
-        return value;
-      } else {
-        return { ...value, transactionDate: dateFromMillis(value.timestamp) };
+      const date = value.transactionDate;
+      if (date == '') {
+        value.transactionDate = timestampToISODate(value.timestamp);
       }
+      return value;
     });
   }
 
@@ -43,17 +43,17 @@ export class RestoreService {
     const incomes = [];
     const expenses = [];
 
-    const keys = ['concept', 'amount', 'transactionDate', 'timestamp'];
+    const baseKeys = ['concept', 'amount', 'transactionDate', 'timestamp'];
 
     data.forEach((value) => {
-      const cash = value.cash ?? Cash.EXPENSE;
+      const cash = value.cash == '' ? Cash.EXPENSE : value.cash;
 
       if (cash == Cash.EXPENSE) {
-        keys.push('filename');
+        const keys = baseKeys.concat('filename');
         const expense = filterKeys(value, keys);
         expenses.push(expense);
       } else if (cash == Cash.INCOME) {
-        keys.push('username');
+        const keys = baseKeys.concat('username');
         const income = filterKeys(value, keys);
         incomes.push(income);
       }
@@ -65,9 +65,8 @@ export class RestoreService {
   async restoreIncomes(restoreIncomes: RestoreIncomeDto[]) {
     const incomes = this.addDate(restoreIncomes);
 
-    const users = this.usersByIncomes(incomes);
+    const users = await this.usersByIncomes(incomes);
 
-    // await this.
     await this.incomesService.restoreIncomes(incomes, users);
   }
 
@@ -87,8 +86,7 @@ export class RestoreService {
       const filename = expense.filename;
       if (!object[filename]) {
         const timestamp = this.getTimestampFromName(filename);
-        const datetime = dateFromMillis(timestamp);
-        const date = dateToString(datetime);
+        const date = timestampToISODate(timestamp);
 
         object[filename] = {
           name: filename,

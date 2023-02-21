@@ -10,11 +10,6 @@ import { RestoreExpenseDto } from '../../cash/dto/restore.dto';
 
 import { File } from './upload.scene';
 
-import { Summary } from '../../cash/models/summary.model';
-import { Cash } from '../../cash/models/cash.model';
-import { Expense } from '../../cash/entities/expense.entity';
-import { Income } from '../../cash/entities/income.entity';
-
 interface State {
   file: File;
   incomes: RestoreIncomeDto[];
@@ -38,6 +33,7 @@ export class RestoreScene {
   async confirmRestore(@Ctx() ctx: Scenes.WizardContext) {
     // Init
     this.state = ctx.wizard.state as State;
+    this.state.file = {} as File;
 
     const confirmButton = Markup.button.callback(
       '✅ Confirm',
@@ -64,9 +60,7 @@ export class RestoreScene {
       const fileInformation = ctx.message.document;
 
       // File Name
-      const name = await this.filesService.getFileName(
-        fileInformation.file_name,
-      );
+      const name = this.filesService.getFileName(fileInformation.file_name);
 
       // State
       this.state.file.info = fileInformation;
@@ -124,7 +118,7 @@ export class RestoreScene {
   // Verifying
   @Action('processData')
   async verifyData(@Ctx() ctx: Scenes.WizardContext) {
-    await ctx.editMessageText('Processing...');
+    ctx.editMessageText('Processing...');
 
     // Process Data
     const data = this.filesService.parseData(ctx, this.state.file);
@@ -150,25 +144,29 @@ export class RestoreScene {
       const confirmButton = Markup.button.callback('⬆ Send', 'sendData');
       const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
 
-      await ctx.editMessageText(
-        'Processed data. Are you sure to restore them? ',
-        Markup.inlineKeyboard([[confirmButton], [cancelButton]]),
-      );
+      setTimeout(() => {
+        ctx.editMessageText(
+          'Processed data. Are you sure to restore them? ',
+          Markup.inlineKeyboard([[confirmButton], [cancelButton]]),
+        );
+      }, 1000);
 
       ctx.wizard.next();
     } else {
+      const firstIncomeErrors = incomeErrors.slice(0, 5);
       const incomeErrorsMessage =
         incomeErrors.length == 0
           ? ''
-          : `\nIncome errors:\n + ${incomeErrors.join('\n')}`;
+          : `\n\nSome income errors:\n ${firstIncomeErrors.join('\n')}`;
 
+      const firstExpenseErrors = expenseErrors.slice(0, 5);
       const expenseErrorsMessage =
         expenseErrors.length == 0
           ? ''
-          : `\nExpense errors:\n + ${expenseErrors.join('\n')}`;
+          : `\n\nSome expense errors:\n ${firstExpenseErrors.join('\n')}`;
 
       const message =
-        'Following data are not valid:\n' +
+        'Following data are not valid:' +
         incomeErrorsMessage +
         expenseErrorsMessage;
 
@@ -190,7 +188,8 @@ export class RestoreScene {
 
       // Message
       this.baseTelegram.completedMessage(ctx);
-    } catch {
+    } catch (e) {
+      console.log(e);
       this.baseTelegram.errorMessage(ctx, 'There was a sending error');
     } finally {
       // Delete csv file

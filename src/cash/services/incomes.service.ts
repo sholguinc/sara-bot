@@ -138,8 +138,10 @@ export class IncomesService {
     const incomes = this.incomeRepository.create(restoreIncomes);
 
     // Add relationship
-    incomes.forEach((income) => {
-      income.user = usersObject[income.username] as User;
+    incomes.forEach((income, index) => {
+      const restoreIncome = restoreIncomes[index];
+      const user = usersObject[restoreIncome.username];
+      income.user = user as User;
     });
 
     await this.incomeRepository.save(incomes);

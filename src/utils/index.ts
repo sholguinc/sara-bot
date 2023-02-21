@@ -7,6 +7,7 @@ import {
   getDateString,
   localString,
   dateFromMillis,
+  timestampToISODate,
   getHyphenDate,
 } from './datetime';
 
@@ -35,4 +36,5 @@ export {
   mergeItems,
   sortItems,
   filterKeys,
+  timestampToISODate,
 };

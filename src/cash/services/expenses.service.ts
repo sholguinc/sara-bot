@@ -133,9 +133,11 @@ export class ExpensesService {
     const expenses = this.expenseRepository.create(restoreExpenses);
 
     // Add relationship
-    expenses.forEach((expense) => {
+    expenses.forEach((expense, index) => {
       if (!expense.filename) {
-        expense.file = filesObject[expense.filename] as File;
+        const restoreExpense = restoreExpenses[index];
+        const file = filesObject[restoreExpense.filename];
+        expense.file = file as File;
       }
     });
 

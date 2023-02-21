@@ -23,8 +23,13 @@ export function getTimestamp(date): string {
   return timestamp.toString();
 }
 
-export function dateFromMillis(millis: string) {
+export function dateFromMillis(millis) {
   return DateTime.fromMillis(millis).setLocale('en-gb').toLocaleString();
+}
+
+export function timestampToISODate(timestamp: string) {
+  const timestampNumber = Number(timestamp);
+  return DateTime.fromMillis(timestampNumber).setLocale('en-gb').toString();
 }
 
 export function localString(dateString: string) {

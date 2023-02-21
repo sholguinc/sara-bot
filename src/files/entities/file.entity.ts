@@ -10,9 +10,9 @@ import {
 import { Expense } from '../../cash/entities/expense.entity';
 import {
   currentTime,
-  dateFromMillis,
   dateToString,
   getTimestamp,
+  timestampToISODate,
 } from 'src/utils';
 
 @Entity({ name: 'files' })
@@ -47,8 +47,7 @@ export class File {
       this.timestamp = getTimestamp(fileDatetime);
       this.date = dateToString(fileDatetime);
     } else if (!this.date) {
-      fileDatetime = dateFromMillis(this.timestamp);
-      this.date = dateToString(fileDatetime);
+      this.date = timestampToISODate(this.timestamp);
     }
   }
 }

@@ -124,8 +124,9 @@ export class UploadScene {
 
       ctx.wizard.next();
     } else {
+      const firstErrors = errors.slice(0, 5);
       const errorMessage =
-        'Following data are not valid:\n' + '\n' + errors.join('\n');
+        'Following data are not valid:\n' + '\n' + firstErrors.join('\n');
 
       this.baseTelegram.errorMessage(ctx, errorMessage);
       ctx.scene.leave();

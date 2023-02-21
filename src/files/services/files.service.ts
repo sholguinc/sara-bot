@@ -114,7 +114,7 @@ export class FilesService {
         header: true,
         skipEmptyLines: 'greedy',
         delimiter: ',',
-        dynamicTyping: true,
+        dynamicTyping: false,
         step: (result) => {
           // Data
           const row = result.data;
@@ -127,11 +127,18 @@ export class FilesService {
         },
       });
 
-      return csvParsed;
+      return this.typeData(csvParsed);
     } catch {
       this.baseTelegram.errorMessage(ctx, 'Data is not valid');
       ctx.scene.leave();
     }
+  }
+
+  typeData(data: any[]): any[] {
+    return data.map((value) => {
+      value.amount = Number(value.amount);
+      return value;
+    });
   }
 
   verifyData(schema, data: any[]): string[] {
