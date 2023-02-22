@@ -3,12 +3,12 @@ import { Markup, Scenes } from 'telegraf';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
 import { CreateExpenseDto } from '../../cash/dto/expense.dto';
-import { FilesService } from '../files.service';
+import { FilesService } from '../services/files.service';
 
 export interface File {
   info: object;
   source: string;
-  total: number;
+  total?: number;
 }
 
 interface State {
@@ -107,7 +107,7 @@ export class UploadScene {
 
     // Process Data
     const data = this.filesService.parseData(ctx, this.state.file);
-    const errors = this.filesService.verifyData(ctx, data);
+    const errors = this.filesService.verifyData(CreateExpenseDto, data);
 
     if (errors.length == 0) {
       // Save data
@@ -124,8 +124,9 @@ export class UploadScene {
 
       ctx.wizard.next();
     } else {
+      const firstErrors = errors.slice(0, 5);
       const errorMessage =
-        'Following data are not valid:\n' + '\n' + errors.join('\n');
+        'Following data are not valid:\n' + '\n' + firstErrors.join('\n');
 
       this.baseTelegram.errorMessage(ctx, errorMessage);
       ctx.scene.leave();

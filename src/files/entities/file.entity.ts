@@ -8,14 +8,19 @@ import {
 } from 'typeorm';
 
 import { Expense } from '../../cash/entities/expense.entity';
-import { currentTime, dateToString, getTimestamp } from 'src/utils';
+import {
+  currentTime,
+  dateToString,
+  getTimestamp,
+  timestampToISODate,
+} from 'src/utils';
 
 @Entity({ name: 'files' })
 export class File {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 30 })
+  @Column({ type: 'varchar', length: 30, unique: true })
   name: string;
 
   @Column({
@@ -35,9 +40,14 @@ export class File {
   expenses: Expense[];
 
   @BeforeInsert()
-  setDate() {
-    const datetime = currentTime();
-    this.date = dateToString(datetime);
-    this.timestamp = getTimestamp(datetime);
+  setFileDate() {
+    let fileDatetime;
+    if (!this.timestamp) {
+      fileDatetime = currentTime();
+      this.timestamp = getTimestamp(fileDatetime);
+      this.date = dateToString(fileDatetime);
+    } else if (!this.date) {
+      this.date = timestampToISODate(this.timestamp);
+    }
   }
 }

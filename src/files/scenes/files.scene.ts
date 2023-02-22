@@ -2,7 +2,7 @@ import { Action, Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Markup, Scenes } from 'telegraf';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
-import { FilesService } from '../files.service';
+import { FilesService } from '../services/files.service';
 import { ExpensesService } from '../../cash/services/expenses.service';
 
 import { File } from '../entities/file.entity';

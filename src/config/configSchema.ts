@@ -10,6 +10,7 @@ const configSchema = Joi.object({
   TZ: Joi.string().required(),
   API_BOT_TOKEN: Joi.string().required(),
   ADMIN_USER_ID: Joi.string().required(),
+  SECURITY_PASSWORD: Joi.number().required(),
 });
 
 export default configSchema;

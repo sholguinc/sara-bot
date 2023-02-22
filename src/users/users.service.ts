@@ -40,16 +40,11 @@ export class UsersService {
     if (!isValidUUID(id)) {
       throw new BadRequestException(`${id} is not a valid UUID`);
     }
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-    return user;
+    return await this.userRepository.findOneBy({ id });
   }
 
-  async findOneByName(name: string): Promise<User> {
-    const id = await this.getUserIdByName(name);
-    return await this.findOne(id);
+  async findOneByName(username: string) {
+    return await this.userRepository.findOneBy({ username });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

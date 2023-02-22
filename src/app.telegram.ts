@@ -44,19 +44,24 @@ export class AppTelegram {
     ctx.scene.enter('filesWizardScene');
   }
 
-  @Command('data')
-  async dataCommand(ctx: Scenes.SceneContext) {
-    ctx.scene.enter('dataWizardScene');
-  }
-
   @Command('users')
   async usersCommand(ctx: Scenes.SceneContext) {
     ctx.scene.enter('usersWizardScene');
   }
 
   @Command('activate')
-  async activeCommand(ctx: Scenes.SceneContext) {
+  async activateCommand(ctx: Scenes.SceneContext) {
     ctx.scene.enter('activateWizardScene');
+  }
+
+  @Command('data')
+  async dataCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('dataWizardScene');
+  }
+
+  @Command('restore')
+  async restoreCommand(ctx: Scenes.SceneContext) {
+    ctx.scene.enter('restoreWizardScene');
   }
 
   @Hears(/\/+/)

@@ -53,7 +53,7 @@ export class UsersScene {
       buttons.push([cancelButton]);
 
       await ctx.replyWithMarkdownV2(
-        'Select user to get information from it',
+        'Select user to get information from it:',
         Markup.inlineKeyboard(buttons),
       );
     } catch {

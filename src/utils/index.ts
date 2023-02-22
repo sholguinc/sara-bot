@@ -7,6 +7,7 @@ import {
   getDateString,
   localString,
   dateFromMillis,
+  timestampToISODate,
   getHyphenDate,
 } from './datetime';
 
@@ -15,6 +16,7 @@ import { chunkArray } from './chunkArray';
 import { capitalize } from './capitalize';
 import { downloadFile, deleteFile } from './file';
 import { mergeItems, sortItems } from './sortItems';
+import { filterKeys } from './filter';
 
 export {
   currentTime,
@@ -33,4 +35,6 @@ export {
   deleteFile,
   mergeItems,
   sortItems,
+  filterKeys,
+  timestampToISODate,
 };

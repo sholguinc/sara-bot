@@ -5,11 +5,9 @@ import { BaseTelegram } from '../../telegram/base.telegram';
 import { ExpensesService } from '../services/expenses.service';
 
 import { FilterDto } from '../dto/filter.dto';
-import { pageButtons, Search, searchMessage } from '../utils';
+import { pageButtons, Search, searchButtons, searchMessage } from '../utils';
 import { PAGE_LIMIT } from '../../config/constants';
-
-import { searchButtons, summaryButtons } from '../utils';
-import { chunkArray, escapeMessage, localString } from 'src/utils';
+import { escapeMessage, localString } from 'src/utils';
 import { Summary } from '../models/summary.model';
 import { Expense } from '../entities/expense.entity';
 
@@ -51,29 +49,14 @@ export class SearchScene {
       maxPrice: false,
     };
     this.state.criteria = [];
-    this.state.filter = {} as FilterDto;
+    this.state.filter = { summary: Summary.YEAR } as FilterDto;
     this.state.criteriaMessage = '';
     this.state.data = { offset: 0 } as Data;
-
-    const buttonArray = summaryButtons();
-    const buttons = chunkArray(buttonArray, 2);
-
-    await ctx.replyWithMarkdownV2(
-      'Choose a period in which to search:',
-      Markup.inlineKeyboard(buttons),
-    );
-  }
-
-  // User select time period
-  @Action(/summary:.+/)
-  async getTime(@Ctx() ctx: Scenes.WizardContext) {
-    const [, summary] = ctx.callbackQuery['data'].split(':');
-    this.state.filter.summary = summary as Summary;
 
     const buttons = searchButtons();
     const { message } = searchMessage(this.state.search);
 
-    await ctx.editMessageText(message, Markup.inlineKeyboard(buttons));
+    await ctx.replyWithMarkdownV2(message, Markup.inlineKeyboard(buttons));
   }
 
   // -> User select search criteria
