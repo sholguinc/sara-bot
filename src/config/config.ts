@@ -16,6 +16,7 @@ export default registerAs('config', () => {
     telegram: {
       apiBotToken: process.env.API_BOT_TOKEN,
       adminUserId: process.env.ADMIN_USER_ID,
+      securityPassword: process.env.SECURITY_PASSWORD,
     },
   };
 });

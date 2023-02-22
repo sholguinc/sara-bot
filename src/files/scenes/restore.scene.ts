@@ -1,5 +1,7 @@
 import { Action, Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Markup, Scenes } from 'telegraf';
+import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
 import { FilesService } from '../services/files.service';
@@ -9,8 +11,13 @@ import { RestoreIncomeDto } from '../../cash/dto/restore.dto';
 import { RestoreExpenseDto } from '../../cash/dto/restore.dto';
 
 import { File } from './upload.scene';
+import { passwordButtons } from '../utils';
+
+config();
+const configService = new ConfigService();
 
 interface State {
+  password: string;
   file: File;
   incomes: RestoreIncomeDto[];
   expenses: RestoreExpenseDto[];
@@ -35,25 +42,66 @@ export class RestoreScene {
     this.state = ctx.wizard.state as State;
     this.state.file = {} as File;
 
-    const confirmButton = Markup.button.callback(
-      '✅ Confirm',
-      'getFileMessage',
-    );
+    const confirmButton = Markup.button.callback('✅ Confirm', 'password');
     const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
     const keyboard = Markup.inlineKeyboard([[confirmButton, cancelButton]]);
 
     await ctx.replyWithMarkdownV2('Are you sure to restore data?', keyboard);
   }
 
-  @Action('getFileMessage')
-  async getFileMessage(@Ctx() ctx) {
+  @Action('password')
+  async goToPassword(@Ctx() ctx) {
+    this.state.password = '';
+
+    const buttons = passwordButtons();
+    const message = 'Type password:';
+
+    await ctx.editMessageText(message, {
+      reply_markup: {
+        inline_keyboard: buttons,
+      },
+    });
+  }
+
+  @Action(/key:.+/)
+  async getPassword(@Ctx() ctx) {
+    let password = this.state.password;
+    const [, key] = ctx.callbackQuery['data'].split(':');
+
+    if (key == 'del') {
+      password = password.slice(0, -1);
+    } else {
+      password = password.concat(key);
+    }
+
+    if (configService.get('SECURITY_PASSWORD') == Number(password)) {
+      ctx.editMessageText('Validating...');
+      setTimeout(() => {
+        ctx.wizard.next();
+        ctx.wizard.steps[ctx.wizard.cursor](ctx);
+      }, 1000);
+    } else {
+      this.state.password = password;
+      const buttons = passwordButtons();
+      const message = 'Type password:\n\n' + '*'.repeat(password.length);
+
+      await ctx.editMessageText(message, {
+        reply_markup: {
+          inline_keyboard: buttons,
+        },
+      });
+    }
+  }
+
+  @WizardStep(2)
+  async getFileMessage(@Ctx() ctx: Scenes.WizardContext) {
     await ctx.editMessageText('Upload the csv file');
     ctx.wizard.next();
   }
 
   // -> User upload excel file
 
-  @WizardStep(2)
+  @WizardStep(3)
   async getFile(@Ctx() ctx: Scenes.WizardContext) {
     if ('document' in ctx.message) {
       // File Info
@@ -141,7 +189,7 @@ export class RestoreScene {
       this.state.expenses = expenses as RestoreExpenseDto[];
 
       // Confirm Upload
-      const confirmButton = Markup.button.callback('⬆ Send', 'sendData');
+      const confirmButton = Markup.button.callback('✅ Confirm', 'sendData');
       const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
 
       setTimeout(() => {
@@ -188,8 +236,7 @@ export class RestoreScene {
 
       // Message
       this.baseTelegram.completedMessage(ctx);
-    } catch (e) {
-      console.log(e);
+    } catch {
       this.baseTelegram.errorMessage(ctx, 'There was a sending error');
     } finally {
       // Delete csv file

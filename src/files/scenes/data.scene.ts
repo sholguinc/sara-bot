@@ -2,6 +2,8 @@ import { Action, Ctx, Wizard, WizardStep } from 'nestjs-telegraf';
 import { Markup, Scenes } from 'telegraf';
 import { unparse } from 'papaparse';
 import { Readable } from 'stream';
+import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 
 import { BaseTelegram } from '../../telegram/base.telegram';
 import { ConsultsService } from '../../cash/services/consults.service';
@@ -13,9 +15,14 @@ import { Cash } from '../../cash/models/cash.model';
 import { Summary } from '../../cash/models/summary.model';
 
 import { getHyphenDate } from 'src/utils';
+import { passwordButtons } from '../utils';
+
+config();
+const configService = new ConfigService();
 
 // State Interface
 interface State {
+  password: string;
   cash: Cash;
   summary: Summary;
   data: Expense[] | Income[];
@@ -39,14 +46,58 @@ export class DataScene {
     this.state = ctx.wizard.state as State;
     this.state.data = [];
 
-    const confirmButton = Markup.button.callback('✅ Confirm', 'getData');
+    const confirmButton = Markup.button.callback('✅ Confirm', 'password');
     const cancelButton = Markup.button.callback('❌ Cancel', 'cancel');
     const keyboard = Markup.inlineKeyboard([[confirmButton, cancelButton]]);
 
     await ctx.replyWithMarkdownV2('Get all data in a csv file?', keyboard);
   }
 
-  @Action('getData')
+  @Action('password')
+  async goToPassword(@Ctx() ctx) {
+    this.state.password = '';
+
+    const buttons = passwordButtons();
+    const message = 'Type password:';
+
+    await ctx.editMessageText(message, {
+      reply_markup: {
+        inline_keyboard: buttons,
+      },
+    });
+  }
+
+  @Action(/key:.+/)
+  async getNumber(@Ctx() ctx) {
+    let password = this.state.password;
+    const [, key] = ctx.callbackQuery['data'].split(':');
+
+    if (key == 'del') {
+      password = password.slice(0, -1);
+    } else {
+      password = password.concat(key);
+    }
+
+    if (Number(password) == configService.get('SECURITY_PASSWORD')) {
+      ctx.editMessageText('Validating...');
+      setTimeout(() => {
+        ctx.wizard.next();
+        ctx.wizard.steps[ctx.wizard.cursor](ctx);
+      }, 1000);
+    } else {
+      this.state.password = password;
+      const buttons = passwordButtons();
+      const message = 'Type password:\n\n' + '*'.repeat(password.length);
+
+      await ctx.editMessageText(message, {
+        reply_markup: {
+          inline_keyboard: buttons,
+        },
+      });
+    }
+  }
+
+  @WizardStep(2)
   async getData(@Ctx() ctx) {
     try {
       // Filter
@@ -72,10 +123,10 @@ export class DataScene {
     }
   }
 
-  @WizardStep(2)
+  @WizardStep(3)
   async cvsFile(@Ctx() ctx: Scenes.WizardContext) {
     try {
-      ctx.editMessageText('Loading...');
+      ctx.editMessageText('Loading data...');
 
       const keys = [
         'cash',
