@@ -7,7 +7,7 @@ const configSchema = Joi.object({
   DB_USERNAME: Joi.string().required(),
   DB_HOST: Joi.string().required(),
   APP_PORT: Joi.number().optional(),
-  TZ: Joi.string().required(),
+  TZ: Joi.string().optional(),
   API_BOT_TOKEN: Joi.string().required(),
   ADMIN_USER_ID: Joi.string().required(),
   SECURITY_PASSWORD: Joi.number().required(),
