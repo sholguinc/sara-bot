@@ -10,6 +10,8 @@ import { AppTelegram } from './app.telegram';
 import { AppServices } from './app.service';
 import { FilesModule } from './files/files.module';
 
+import { AppController } from './app.controller';
+
 @Module({
   imports: [
     MyConfigModule,
@@ -19,6 +21,7 @@ import { FilesModule } from './files/files.module';
     UsersModule,
     FilesModule,
   ],
+  controllers: [AppController],
   providers: [AppTelegram, AppServices],
 })
 export class AppModule {}
