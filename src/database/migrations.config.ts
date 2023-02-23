@@ -17,7 +17,7 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: ['src/**/*.entity.ts'],
   migrations: ['src/database/migrations/*.ts'],
   migrationsTableName: 'migrations',
-  ssl: true,
+  ssl: configService.get('DB_HOST') != 'localhost',
 };
 
 const dataSource = new DataSource(dataSourceOptions);

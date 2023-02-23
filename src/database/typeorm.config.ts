@@ -21,7 +21,7 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       database: name,
       synchronize: false, //false in migrations
       autoLoadEntities: true,
-      ssl: true,
+      ssl: host != 'localhost',
     };
   },
 };
