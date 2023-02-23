@@ -17,6 +17,7 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: ['src/**/*.entity.ts'],
   migrations: ['src/database/migrations/*.ts'],
   migrationsTableName: 'migrations',
+  ssl: true,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

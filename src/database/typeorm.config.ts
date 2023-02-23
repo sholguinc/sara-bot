@@ -1,4 +1,4 @@
-import {
+  import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
@@ -21,6 +21,7 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       database: name,
       synchronize: false, //false in migrations
       autoLoadEntities: true,
+      ssl: true,
     };
   },
 };
