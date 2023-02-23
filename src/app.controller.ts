@@ -4,7 +4,7 @@ import { Controller, Get, HttpCode } from '@nestjs/common';
 export class AppController {
   @Get('/')
   home() {
-    return { message: 'Hello World' };
+    return { message: 'Hello World!' };
   }
 
   @Get('/health')
