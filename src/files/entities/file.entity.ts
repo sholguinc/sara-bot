@@ -20,7 +20,7 @@ export class File {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 30, unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true })
   name: string;
 
   @Column({

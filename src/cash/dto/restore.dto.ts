@@ -16,7 +16,7 @@ export class RestoreExpenseDto extends CreateExpenseDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(30)
+  @MaxLength(50)
   filename: string;
 }
 

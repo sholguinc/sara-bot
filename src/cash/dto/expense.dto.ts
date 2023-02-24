@@ -4,7 +4,7 @@ import { PartialType } from '@nestjs/mapped-types';
 export class CreateExpenseDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(20)
+  @MaxLength(50)
   concept: string;
 
   @IsNumber()

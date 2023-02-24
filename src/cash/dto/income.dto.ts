@@ -8,7 +8,7 @@ export class CreateIncomeDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(20)
+  @MaxLength(50)
   concept: string;
 
   @IsNumber()
