@@ -10,7 +10,7 @@ export class AppController {
   @Get('/health')
   @HttpCode(200)
   healthEndpoint() {
-    console.log('-> check health endpoint');
+    console.log('-> healthcheck endpoint');
     return { message: 'OK' };
   }
 }
