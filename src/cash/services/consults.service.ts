@@ -75,10 +75,10 @@ export class ConsultsService {
       let sign, add;
       if (value instanceof Expense) {
         sign = ' - ';
-        add = ' - ' + value.concept;
+        add = value.concept;
       } else if (value instanceof Income) {
         sign = ' + ';
-        add = ' - ' + value.user.username;
+        add = value.user.username;
       }
 
       // Data row
